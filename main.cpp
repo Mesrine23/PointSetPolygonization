@@ -1,16 +1,19 @@
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 #include <iostream>
+#include <sstream>
 #include <vector>
-#include <fstream>
-#include <string>
-#include <cstring>
-
-#include <CGAL/convex_hull_2.h>
-#include <CGAL/Convex_hull_traits_adapter_2.h>
-#include <CGAL/property_map.h>
+#include <algorithm>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 
-//typedef K::Point_2      Point_2;
-
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef K::Point_2      Point_2;
 
 using namespace std;
 
@@ -19,7 +22,7 @@ vector<Point_2> ProcessInputFile(string file_name){
     in_file.open(file_name);
     string line;
     vector<Point_2> pointset;
-    while(getline(in_file, line){
+    while(getline(in_file, line)){
         int pnt_id, tmp_x, tmp_y;
         stringstream line_strm(line);
         string inter;
@@ -35,7 +38,7 @@ vector<Point_2> ProcessInputFile(string file_name){
 
         pointset.push_back(Point_2(tmp_x, tmp_y));
     }
-    return points;
+    return pointset;
 }
 
 int main(int argc, char* argv[]) {
@@ -49,23 +52,31 @@ int main(int argc, char* argv[]) {
             inputFileName = argv[i+1];
         }
         else if (strcmp(argv[i],"-o")==0) {
-            inputFileName = argv[i+1];
+            outputFileName = argv[i+1];
         }
         else if (strcmp(argv[i],"-algorithm")==0) {
-            inputFileName = argv[i+1];
+            algorithmName = argv[i+1];
         }
         else if (strcmp(argv[i],"-edge_selection")==0) {
-            saveUserInputData(argv[i+1],edgeSelection);
+            edgeSelection = argv[i+1];
         }
         else if (strcmp(argv[i],"-initialization")==0) {
-            saveUserInputData(argv[i+1],incrementalInit);
+            incrementalInit = argv[i+1];
         }
     }
+    cout << endl << endl;
+    cout << "input file: " + inputFileName << endl;
+    cout << "output file: " + outputFileName << endl;
+    cout << "algorithm: " + algorithmName << endl;
+    cout << "edge selection: " + edgeSelection << endl;
+    cout << "incremental initialization: " + incrementalInit << endl;
+
+    vector<Point_2> test = ProcessInputFile(inputFileName);
+    for(int i=0 ; i < test.size() ; ++i) {
+        cout << to_string(test[i].x()) << endl;
+        cout << to_string(test[i].y()) << endl;
+    }
+        
+
     return 0;
-
-    /*
-     * ./PointSetPolygonization –i inputFile.txt –ο outputFile.txt –algorithm incremental -edge_selection 1 -initialization 1a -onion_initialization 5
-     */
-
-
 }

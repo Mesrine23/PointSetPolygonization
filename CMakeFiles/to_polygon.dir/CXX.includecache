@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mesrine/Desktop/PointSetPolygonization/main.cpp
+fcntl.h
+-
+stdio.h
+-
+string.h
+-
+unistd.h
+-
+iostream
+-
+sstream
+-
+vector
+-
+algorithm
+-
+signal.h
+-
+sys/types.h
+-
+sys/stat.h
+-
+CGAL/Exact_predicates_inexact_constructions_kernel.h
+-
+

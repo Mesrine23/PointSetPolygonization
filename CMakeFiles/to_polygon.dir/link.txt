@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG  -rdynamic CMakeFiles/to_polygon.dir/main.cpp.o  -o to_polygon 

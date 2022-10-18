@@ -1,3 +1,0 @@
-/home/mesrine/Desktop/PointSetPolygonization/cmake-build-debug/CMakeFiles/PointSetPolygonization.dir
-/home/mesrine/Desktop/PointSetPolygonization/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/mesrine/Desktop/PointSetPolygonization/cmake-build-debug/CMakeFiles/rebuild_cache.dir
