@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/mesrine/Desktop/PointSetPolygonization
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -77,6 +66,17 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,17 +111,43 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named to_polygon
+# Target rules for targets named cgal_check_build_system
 
 # Build rule for target.
-to_polygon: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 to_polygon
-.PHONY : to_polygon
+cgal_check_build_system: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cgal_check_build_system
+.PHONY : cgal_check_build_system
 
 # fast build rule for target.
-to_polygon/fast:
-	$(MAKE) -f CMakeFiles/to_polygon.dir/build.make CMakeFiles/to_polygon.dir/build
-.PHONY : to_polygon/fast
+cgal_check_build_system/fast:
+	$(MAKE) -f CMakeFiles/cgal_check_build_system.dir/build.make CMakeFiles/cgal_check_build_system.dir/build
+.PHONY : cgal_check_build_system/fast
+
+#=============================================================================
+# Target rules for targets named ALL_CGAL_TARGETS
+
+# Build rule for target.
+ALL_CGAL_TARGETS: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ALL_CGAL_TARGETS
+.PHONY : ALL_CGAL_TARGETS
+
+# fast build rule for target.
+ALL_CGAL_TARGETS/fast:
+	$(MAKE) -f CMakeFiles/ALL_CGAL_TARGETS.dir/build.make CMakeFiles/ALL_CGAL_TARGETS.dir/build
+.PHONY : ALL_CGAL_TARGETS/fast
+
+#=============================================================================
+# Target rules for targets named main
+
+# Build rule for target.
+main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 main
+.PHONY : main
+
+# fast build rule for target.
+main/fast:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
+.PHONY : main/fast
 
 main.o: main.cpp.o
 
@@ -129,7 +155,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) -f CMakeFiles/to_polygon.dir/build.make CMakeFiles/to_polygon.dir/main.cpp.o
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -138,7 +164,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles/to_polygon.dir/build.make CMakeFiles/to_polygon.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -147,7 +173,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles/to_polygon.dir/build.make CMakeFiles/to_polygon.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -156,9 +182,11 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... to_polygon"
+	@echo "... rebuild_cache"
+	@echo "... cgal_check_build_system"
+	@echo "... ALL_CGAL_TARGETS"
+	@echo "... main"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

@@ -7,28 +7,16 @@
 #IncludeRegexTransform: 
 
 /home/mesrine/Desktop/PointSetPolygonization/main.cpp
-fcntl.h
+CGAL/Exact_predicates_inexact_constructions_kernel.h
 -
-stdio.h
+CGAL/convex_hull_2.h
 -
-string.h
+CGAL/Convex_hull_traits_adapter_2.h
 -
-unistd.h
--
-iostream
--
-sstream
+CGAL/property_map.h
 -
 vector
 -
-algorithm
--
-signal.h
--
-sys/types.h
--
-sys/stat.h
--
-CGAL/Exact_predicates_inexact_constructions_kernel.h
+numeric
 -
 
