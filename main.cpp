@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <numeric>
+#include <fstream>
 
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Convex_hull_traits_adapter_2.h>
@@ -23,41 +24,37 @@ void printPointSet(vector<Point_2> pointSet) {
     }
 }
 
-vector<Point_2> ProcessInputFile(string file_name){
-    ifstream in_file;
-    in_file.open(file_name);
-    string line;
-    vector<Point_2> pointset;
-    while(getline(in_file, line)){
-        int pnt_id, tmp_x, tmp_y;
-        stringstream line_strm(line);
-        string inter;
-
-        getline(line_strm, inter, '\t');
-        pnt_id = stoi(inter);
-
-        getline(line_strm, inter, '\t');
-        tmp_x = stoi(inter);
-
-        getline(line_strm , inter ,'\t');
-        tmp_y = stoi(inter);
-
-        pointset.push_back(Point_2(tmp_x, tmp_y));
-    }
-    return pointset;
+vector<Point_2> ProcessInputFile(string file_name) {
+    ifstream file(file_name);
+    vector<Point_2> pointSet;
+    int lineIterator, xCordinate, yCordinate;
+    while (file >> lineIterator >> xCordinate >> yCordinate)
+        pointSet.push_back(Point_2(xCordinate, yCordinate));
+    return pointSet;
 }
 
-bool comparePointXdesc(Point_2 A, Point_2 B){
+bool comparePointXdesc(Point_2 A, Point_2 B) {
     return A.x()>B.x();
 }
-bool comparePointXasc(Point_2 A, Point_2 B){
+bool comparePointXasc(Point_2 A, Point_2 B) {
     return A.x()<B.x();
 }
-bool comparePointYdesc(Point_2 A, Point_2 B){
+bool comparePointYdesc(Point_2 A, Point_2 B) {
     return A.y()>B.y();
 }
-bool comparePointYasc(Point_2 A, Point_2 B){
+bool comparePointYasc(Point_2 A, Point_2 B) {
     return A.y()<B.y();
+}
+
+int findIndexOfPointInPointSet(vector<Point_2> pointSet, Point_2 point) {
+    int index = -1;
+    for(int i=0 ; i<pointSet.size() ; ++i) {
+        if( pointSet[i].x() == point.x() && pointSet[i].y() == point.y() ) {
+            index = i;
+            break;
+        }
+    }
+    return index;
 }
 
 vector<Point_2> sortPointset(vector<Point_2> pointSet, string sortMethod) {
@@ -76,22 +73,48 @@ vector<Point_2> sortPointset(vector<Point_2> pointSet, string sortMethod) {
     return pointSet;
 }
 
-Polygon_2 ConvexHullPolygon(vector<Point_2> pointSet) {
-    Polygon_2 convexHull;
+vector<Point_2> ConvexHullPolygon(vector<Point_2> pointSet) {
+    vector<Point_2> convexHull;
     std::vector<std::size_t> indices(pointSet.size()), out;
     std::iota(indices.begin(), indices.end(),0);
     CGAL::convex_hull_2(indices.begin(), indices.end(), std::back_inserter(out),
                         Convex_hull_traits_2(CGAL::make_property_map(pointSet)));
     for( std::size_t i : out ) {
         convexHull.push_back(pointSet[i]);
-        std::cout << "points[" << i << "] = " << pointSet[i] << std::endl;
+        //std::cout << "points[" << i << "] = " << pointSet[i] << std::endl;
     }
+    //printPointSet(convexHull);
+    //cout << endl;
     return convexHull;
 }
 
+vector<Segment_2> getReplacedConvexHullEdges(vector<Point_2> oldConvexHull, vector<Point_2> newConvexHull, Point_2 newPoint){
+    vector<Segment_2> replacedEdges;
+    int positionOfNewPoint = findIndexOfPointInPointSet(newConvexHull,newPoint);
+    Point_2 upperPoint, lowerPoint;
+
+    (positionOfNewPoint == (newConvexHull.size()-1)) ? (lowerPoint = newConvexHull[0]) : (lowerPoint = newConvexHull[positionOfNewPoint+1]);
+    (positionOfNewPoint == 0) ? (upperPoint = newConvexHull[newConvexHull.size()-1]) : (upperPoint = newConvexHull[1]);
+
+    int positionOfUpperElement = findIndexOfPointInPointSet(oldConvexHull, upperPoint);
+
+    bool isLowerElement = false;
+    int index = positionOfUpperElement;
+    while(!isLowerElement){
+        Point_2 segmentPointA, segmentPointB;
+        segmentPointA = oldConvexHull[index];
+        (index == (oldConvexHull.size()-1)) ? (index = 0) : (++index);
+        segmentPointB = oldConvexHull[index];
+        replacedEdges.push_back(Segment_2(segmentPointA, segmentPointB));
+        if (segmentPointB==lowerPoint)
+            isLowerElement=true;
+    }
+    return replacedEdges;
+}
+
 void IncrementalAlg(vector<Point_2> pointSet, int edgeSelection, string initMethod) {
-    vector<Point_2> sortedPointSet, usedPoints;
-    Polygon_2 polygon, convexHull;
+    vector<Point_2> sortedPointSet, usedPoints, convexHull;
+    Polygon_2 polygon;
 
     sortedPointSet = sortPointset(pointSet, initMethod);
 
@@ -102,13 +125,19 @@ void IncrementalAlg(vector<Point_2> pointSet, int edgeSelection, string initMeth
     }
 
     while(!sortedPointSet.empty()){
+        convexHull = ConvexHullPolygon(usedPoints);
+
         Point_2 currentPoint = sortedPointSet.front();
         sortedPointSet.erase(sortedPointSet.begin());
 
+        usedPoints.push_back(currentPoint);
+        vector<Point_2> newConvexHull = ConvexHullPolygon(usedPoints);
+
+        vector<Segment_2> newCHEdges = getReplacedConvexHullEdges(convexHull, newConvexHull,currentPoint);
     }
 }
 
-
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 int main(int argc, char* argv[]) {
     string inputFileName;
@@ -133,16 +162,14 @@ int main(int argc, char* argv[]) {
             incrementalInit = argv[i+1];
         }
     }
-    cout << endl << endl;
-    cout << "input file: " + inputFileName << endl;
-    cout << "output file: " + outputFileName << endl;
-    cout << "algorithm: " + algorithmName << endl;
-    cout << "edge selection: " + edgeSelection << endl;
-    cout << "incremental initialization: " + incrementalInit << endl;
+//    cout << endl << endl;
+//    cout << "input file: " + inputFileName << endl;
+//    cout << "output file: " + outputFileName << endl;
+//    cout << "algorithm: " + algorithmName << endl;
+//    cout << "edge selection: " + edgeSelection << endl;
+//    cout << "incremental initialization: " + incrementalInit << endl;
 
     vector<Point_2> test = ProcessInputFile(inputFileName);
-    ConvexHullPolygon(test);
-    return 0;
     IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
 
     return 0;
