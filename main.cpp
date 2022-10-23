@@ -155,7 +155,22 @@ vector<Segment_2> getRedEdges(vector<Point_2> oldConvexHull, vector<Point_2> new
     (positionOfNewPoint == (newConvexHull.size()-1)) ? (lowerPoint = newConvexHull[0]) : (lowerPoint = newConvexHull[positionOfNewPoint+1]);
     (positionOfNewPoint == 0) ? (upperPoint = newConvexHull[newConvexHull.size()-1]) : (upperPoint = newConvexHull[1]);
 
-    int positionOfUpperElement = findIndexOfPointInPointSet(oldConvexHull, upperPoint);
+    vector<Segment_2> oldConvexHullPolygon = getPolygonEdgesFromPoints(oldConvexHull);
+    vector<Segment_2> newConvexHullPolygon = getPolygonEdgesFromPoints(newConvexHull);
+    for(Segment_2 oldConvexEdge: oldConvexHullPolygon) {
+        bool foundEdge = false;
+        for(Segment_2 newConvexEdge: newConvexHullPolygon) {
+            if (oldConvexEdge==newConvexEdge) {
+                foundEdge = true;
+                break;
+            }
+        }
+        if(!foundEdge)
+            replacedEdges.push_back(oldConvexEdge);
+    }
+    return replacedEdges;
+
+    /*int positionOfUpperElement = findIndexOfPointInPointSet(oldConvexHull, upperPoint);
 
     bool isLowerElement = false;
     int index = positionOfUpperElement;
@@ -168,7 +183,7 @@ vector<Segment_2> getRedEdges(vector<Point_2> oldConvexHull, vector<Point_2> new
         if (segmentPointB==lowerPoint)
             isLowerElement=true;
     }
-    return replacedEdges;
+    return replacedEdges;*/
 }
 vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_2> polygon) {
     vector<Segment_2> chainedEdges;
