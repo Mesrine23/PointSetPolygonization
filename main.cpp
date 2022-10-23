@@ -4,7 +4,7 @@
 #include <vector>
 #include <numeric>
 #include <fstream>
-
+#include <random>
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Convex_hull_traits_adapter_2.h>
 #include <CGAL/property_map.h>
@@ -17,6 +17,31 @@ typedef K::Segment_2    Segment_2;
 typedef CGAL::Convex_hull_traits_adapter_2<K,CGAL::Pointer_property_map<Point_2>::type > Convex_hull_traits_2;
 
 using namespace std;
+/*--------------------------------------------------------------------------------------------------------------------*/
+void printPointSet(vector<Point_2>);
+void printUserInput(string, string, string, string, string);
+void printErrorPointNotFound(Point_2, vector<Point_2>);
+vector<Segment_2> getPolygonEdgesFromPoints(vector<Point_2>);
+Polygon_2 getSimplePolygonFromPoints(vector<Point_2>);
+vector<Point_2> ProcessInputFile(string);
+bool comparePointXdesc(Point_2, Point_2);
+bool comparePointXasc(Point_2, Point_2);
+bool comparePointYdesc(Point_2, Point_2);
+bool comparePointYasc(Point_2, Point_2);
+int findIndexOfPointInPointSet(vector<Point_2>, Point_2);
+vector<Point_2> sortPointset(vector<Point_2>, string);
+vector<Point_2> createConvexHull(vector<Point_2>);
+vector<Segment_2> getRedEdges(vector<Point_2>, vector<Point_2>, Point_2);
+vector<Segment_2> findChainOfEdges(Point_2, Point_2, vector<Point_2>);
+bool isEdgeVisibleFromPoint(Point_2, Segment_2, vector<Segment_2>);
+vector<Segment_2> calculateVisibleEdges(vector<Segment_2>, vector<Point_2>, Point_2, vector<Point_2>);
+Segment_2 randomEdgeSelection(vector<Segment_2>);
+Segment_2 minAreaEdgeSelection(vector<Segment_2>, Point_2, vector<Point_2>);
+Segment_2 maxAreaEdgeSelection(vector<Segment_2>, Point_2, vector<Point_2>);
+Segment_2 getPolygonEdgeToReplace(vector<Segment_2>, Point_2, vector<Point_2>, int);
+vector<Point_2> insertPointToPolygonPointSet(Point_2, Segment_2, vector<Point_2>);
+void IncrementalAlg(vector<Point_2>, int, string);
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 void printPointSet(vector<Point_2> pointSet) {
     for(int i=0 ; i < pointSet.size() ; ++i) {
@@ -49,10 +74,16 @@ vector<Segment_2> getPolygonEdgesFromPoints(vector<Point_2> pointSet) {
     return polygon;
 }
 
-Polygon_2 getPolygonFromPoints(vector<Point_2> pointSet) {
+Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
     Polygon_2 polygon;
     for(int i=0 ; i<pointSet.size() ; ++i)
         polygon.push_back(pointSet[i]);
+    if (polygon.is_simple()) {
+        return polygon;
+    } else {
+        cout << endl << "Not a simple polygon!" << endl;
+        exit(-1);
+    }
     return polygon;
 }
 
@@ -139,7 +170,6 @@ vector<Segment_2> getRedEdges(vector<Point_2> oldConvexHull, vector<Point_2> new
     }
     return replacedEdges;
 }
-
 vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_2> polygon) {
     vector<Segment_2> chainedEdges;
     auto indexOfPointA = find(polygon.begin(), polygon.end(), pointA);
@@ -178,6 +208,8 @@ vector<Segment_2> calculateVisibleEdges(vector<Segment_2> redEdges, vector<Point
     vector<Segment_2> visibleEdges;
     vector<Segment_2> polygonEdges = getPolygonEdgesFromPoints(polygonPointSet);
     for(Segment_2 redEdge : redEdges){
+        cout << "redEdgePointA: " << redEdge[0].x() << " " << redEdge[0].y() << endl;
+        cout << "redEdgePointB: " << redEdge[1].x() << " " << redEdge[1].y() << endl;
         bool foundEdge=false;
         for(Segment_2 polygonEdge : polygonEdges){
             if(redEdge==polygonEdge) {
@@ -197,7 +229,71 @@ vector<Segment_2> calculateVisibleEdges(vector<Segment_2> redEdges, vector<Point
     return visibleEdges;
 }
 
-void IncrementalAlg(vector<Point_2> pointSet, int edgeSelection, string initMethod) {
+Segment_2 randomEdgeSelection(vector<Segment_2> replaceableEdges) {
+    std::random_device randomDevice;
+    std::mt19937 gen(randomDevice());
+    std::uniform_int_distribution<> distr(0, replaceableEdges.size()-1);
+    return replaceableEdges[distr(gen)];
+}
+
+Segment_2 minAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
+    Segment_2 edgeToReturn = replaceableEdges[0];
+    vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
+    double minArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    for(int i=1 ; i<replaceableEdges.size() ; ++i) {
+        Segment_2 tempEdgeToReturn = replaceableEdges[i];
+        vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
+        double tempMinArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+        if (tempMinArea < minArea) {
+            edgeToReturn = replaceableEdges[i];
+            minArea = tempMinArea;
+        }
+    }
+    return edgeToReturn;
+}
+
+Segment_2 maxAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
+    Segment_2 edgeToReturn = replaceableEdges[0];
+    vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
+    double maxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    for(int i=1 ; i<replaceableEdges.size() ; ++i) {
+        Segment_2 tempEdgeToReturn = replaceableEdges[i];
+        vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
+        double tempMaxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+        if (tempMaxArea > maxArea) {
+            edgeToReturn = replaceableEdges[i];
+            maxArea = tempMaxArea;
+        }
+    }
+    return edgeToReturn;
+}
+
+Segment_2 getPolygonEdgeToReplace(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet, int edgeSelectionMethod) {
+    switch (edgeSelectionMethod) {
+        case 1:
+            return randomEdgeSelection(replaceableEdges);
+        case 2:
+            return minAreaEdgeSelection(replaceableEdges,currentPoint,polygonPointSet);
+        case 3:
+            return maxAreaEdgeSelection(replaceableEdges,currentPoint,polygonPointSet);
+        default:
+            exit(-1);
+    }
+}
+
+vector<Point_2> insertPointToPolygonPointSet(Point_2 point, Segment_2 edgeToBreak, vector<Point_2> polygon) {
+    auto indexOfEdge1 = find(polygon.begin(), polygon.end(), edgeToBreak[0]);
+    auto indexOfEdge2 = find(polygon.begin(), polygon.end(), edgeToBreak[1]);
+    int index1 = indexOfEdge1 - polygon.begin();
+    int index2 = indexOfEdge2 - polygon.begin();
+    int startingIndex;
+    (index1 > index2) ? (startingIndex = index2) : (startingIndex = index1);
+    auto insertPosition = polygon.begin() + startingIndex+1;
+    polygon.insert(insertPosition,point);
+    return polygon;
+}
+
+void IncrementalAlg(vector<Point_2> pointSet, int edgeSelectionMethod, string initMethod) {
     vector<Point_2> sortedPointSet, usedPoints, convexHull, polygon;
 
     sortedPointSet = sortPointset(pointSet, initMethod);
@@ -218,8 +314,12 @@ void IncrementalAlg(vector<Point_2> pointSet, int edgeSelection, string initMeth
         vector<Point_2> newConvexHull = createConvexHull(usedPoints);
         vector<Segment_2> redEdges = getRedEdges(convexHull, newConvexHull,currentPoint);
         vector<Segment_2> replaceableEdges = calculateVisibleEdges(redEdges,polygon,currentPoint,convexHull);
-        //polygon = insertPointToPolygonPointSet;
+        Segment_2 edgeToReplace = getPolygonEdgeToReplace(replaceableEdges,currentPoint,polygon,edgeSelectionMethod);
+        polygon = insertPointToPolygonPointSet(currentPoint,edgeToReplace,polygon);
     }
+    printPointSet(polygon);
+    Polygon_2 polygon2 = getSimplePolygonFromPoints(polygon);
+    cout << "Polygon is " << (polygon2.is_simple() ? "" : "not") << " simple." << endl;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -248,10 +348,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    //printUserInput(inputFileName,outputFileName,algorithmName,edgeSelection,incrementalInit);
     vector<Point_2> test = ProcessInputFile(inputFileName);
     IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
 
     return 0;
 }
 
-// ./to_polygon -i test.txt -o outputFile.txt -algorithm incremental -edge_selection 1 -initialization 2b
+// ./main -i test.txt -o outputFile.txt -algorithm incremental -edge_selection 1 -initialization 2b
