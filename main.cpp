@@ -302,11 +302,11 @@ Segment_2 randomEdgeSelection(vector<Segment_2> replaceableEdges) {
 Segment_2 minAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
     Segment_2 edgeToReturn = replaceableEdges[0];
     vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
-    double minArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    long double minArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
     for(int i=1 ; i<replaceableEdges.size() ; ++i) {
         Segment_2 tempEdgeToReturn = replaceableEdges[i];
         vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
-        double tempMinArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+        long double tempMinArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
         if (tempMinArea < minArea) {
             edgeToReturn = replaceableEdges[i];
             minArea = tempMinArea;
@@ -318,11 +318,11 @@ Segment_2 minAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 curre
 Segment_2 maxAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
     Segment_2 edgeToReturn = replaceableEdges[0];
     vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
-    double maxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    long double maxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
     for(int i=1 ; i<replaceableEdges.size() ; ++i) {
         Segment_2 tempEdgeToReturn = replaceableEdges[i];
         vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
-        double tempMaxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+        long double tempMaxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
         if (tempMaxArea > maxArea) {
             edgeToReturn = replaceableEdges[i];
             maxArea = tempMaxArea;
@@ -417,7 +417,7 @@ void printResults(vector<Point_2> points, int edgeSelection, string algorithm, s
         cout<<"Algorithm: convex_hull"<<endl;
 
     Polygon_2 polygon = getSimplePolygonFromPoints(points);
-    double polygonArea = abs(polygon.area());
+    long double polygonArea = abs(polygon.area());
     cout<<"area: "<<polygonArea<<endl;
     cout<<"ratio: "<<(polygonArea/abs(getSimplePolygonFromPoints(createConvexHull(points)).area()))*100<<"%"<<endl;
     cout<<"construcution time:"<<milliseconds<<"ms"<<endl;
@@ -453,7 +453,7 @@ int main(int argc, char* argv[]) {
     auto started = std::chrono::high_resolution_clock::now();
     vector<Point_2> result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
     auto done = std::chrono::high_resolution_clock::now();
-    
+
     printResults(result, stoi(edgeSelection), algorithmName, incrementalInit, std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count());
 
     return 0;
