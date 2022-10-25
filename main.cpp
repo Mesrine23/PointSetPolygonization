@@ -10,6 +10,7 @@
 #include <CGAL/property_map.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Polygon_2.h>
+#include <CGAL/intersections.h>
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2      Point_2;
 typedef CGAL::Polygon_2<K> Polygon_2;
@@ -91,6 +92,9 @@ vector<Point_2> ProcessInputFile(string file_name) {
     ifstream file(file_name);
     vector<Point_2> pointSet;
     int lineIterator, xCordinate, yCordinate;
+    string garbageInfo;
+    getline(file, garbageInfo);
+    getline(file, garbageInfo);
     while (file >> lineIterator >> xCordinate >> yCordinate)
         pointSet.push_back(Point_2(xCordinate, yCordinate));
     return pointSet;
@@ -234,12 +238,32 @@ vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_
     return chainedEdges;
 }
 
+bool segmentIntersectsPolygonEdge(Segment_2 seg, Segment_2 polygonEdge){
+    const auto result = intersection(seg, polygonEdge);
+    if(result){
+        if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+            return false;
+        } else {
+            const Point_2* p = boost::get<Point_2 >(&*result);
+            if(!(*p==seg.end())) return true;
+        }
+    }
+    return false;
+}
+
 bool isEdgeVisibleFromPoint(Point_2 point, Segment_2 edge, vector<Segment_2> polygon){
-    Segment_2 edgeA(point, edge[0]), edgeB(point, edge[1]);
-    for(Segment_2 polygonEdge: polygon) {
-        if(do_intersect(edgeA,polygonEdge) || do_intersect(edgeB,polygonEdge)) return false;
+    Point_2 edgeMidpoint((edge.start().x()+edge.end().x())/2, (edge.start().y()+edge.end().y())/2);
+    Segment_2 edgeA(point, edge[0]), edgeB(point, edge[1]), edgeMid(point, edgeMidpoint);
+//    for(Segment_2 polygonEdge: polygon) {
+//        if(do_intersect(edgeA,polygonEdge) || do_intersect(edgeB,polygonEdge)) return false;
+//    }
+//    return true;
+    for(Segment_2 polygonEdge : polygon){
+        if(segmentIntersectsPolygonEdge(edgeA, polygonEdge) || segmentIntersectsPolygonEdge(edgeB, polygonEdge) ||
+                segmentIntersectsPolygonEdge(edgeMid, polygonEdge)) return false;
     }
     return true;
+
 }
 
 bool segmentsEquivalent(Segment_2 A, Segment_2 B){
