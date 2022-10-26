@@ -35,6 +35,7 @@ vector<Point_2> createConvexHull(vector<Point_2>);
 vector<Segment_2> getRedEdges(vector<Point_2>, vector<Point_2>, Point_2);
 vector<Segment_2> findChainOfEdges(Point_2, Point_2, vector<Point_2>, bool);
 bool isEdgeVisibleFromPoint(Point_2, Segment_2, vector<Segment_2>);
+bool segmentsEquivalent(Segment_2, Segment_2);
 vector<Segment_2> calculateVisibleEdges(vector<Segment_2>, vector<Point_2>, Point_2, vector<Point_2>);
 Segment_2 randomEdgeSelection(vector<Segment_2>);
 Segment_2 minAreaEdgeSelection(vector<Segment_2>, Point_2, vector<Point_2>);
@@ -43,11 +44,23 @@ Segment_2 getPolygonEdgeToReplace(vector<Segment_2>, Point_2, vector<Point_2>, i
 vector<Point_2> insertPointToPolygonPointSet(Point_2, Segment_2, vector<Point_2>);
 vector<Point_2> IncrementalAlg(vector<Point_2>, int, string);
 /*--------------------------------------------------------------------------------------------------------------------*/
+//segList={segment[(1,2),(3,4)],segment[(5,2),(-1,-3)]}
+void printSegList(vector<Point_2> points){
+    int size = points.size();
+    cout<<"segList={";
+    for(int i=0; i<(points.size()-2); i++){
+        cout<<"segment[("<<points[i].x()<<","<<points[i].y()<<"),("<<points[i+1].x()<<","<<points[i+1].y()<<")],";
+    }
+    cout<<"segment[("<<points[size-1].x()<<","<<points[size-1].y()<<"),("<<points[0].x()<<","<<points[0].y()<<")]}";
+}
 
 void printPointSet(vector<Point_2> pointSet) {
-    for(int i=0 ; i < pointSet.size() ; ++i) {
-        cout << to_string(pointSet[i].x()) + " " + to_string(pointSet[i].y()) << endl;
+    cout << "PointList({";
+    for(int i=0 ; i < pointSet.size()-1 ; ++i) {
+        cout << "{" << to_string(pointSet[i].x()) + "," + to_string(pointSet[i].y()) << "},";
     }
+    cout << "{" << to_string(pointSet[pointSet.size()-1].x()) + "," + to_string(pointSet[pointSet.size()-1].y()) << "}";
+    cout << "})" << endl;
 }
 
 void printUserInput(string inputFileName, string outputFileName, string algorithmName, string edgeSelection, string incrementalInit) {
@@ -83,6 +96,7 @@ Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
         return polygon;
     } else {
         cout << endl << "Not a simple polygon!" << endl;
+        //*((char*)0) = 0;
         exit(-1);
     }
 }
@@ -101,15 +115,19 @@ vector<Point_2> ProcessInputFile(string file_name) {
 }
 
 bool comparePointXdesc(Point_2 A, Point_2 B) {
+    if (A.x()==B.x()) return A.y()>B.y();
     return A.x()>B.x();
 }
 bool comparePointXasc(Point_2 A, Point_2 B) {
+    if (A.x()==B.x()) return A.y()>B.y();
     return A.x()<B.x();
 }
 bool comparePointYdesc(Point_2 A, Point_2 B) {
+    if (A.y()==B.y()) return A.x()<B.x();
     return A.y()>B.y();
 }
 bool comparePointYasc(Point_2 A, Point_2 B) {
+    if (A.y()==B.y()) return A.x()<B.x();
     return A.y()<B.y();
 }
 
@@ -151,20 +169,20 @@ vector<Point_2> createConvexHull(vector<Point_2> pointSet) {
     return convexHull;
 }
 
-bool isPointOnCHPerimeter(Point_2 point, vector<Point_2> convex_hull, vector<Segment_2> edges){
+bool isPointOnCHPerimeter(Point_2 point, vector<Point_2> convex_hull, vector<Segment_2>& replaceableEdges){
     for(int i=0; i<(convex_hull.size()-2); i++){
         Segment_2 currentEdge(convex_hull[i], convex_hull[i+1]);
         if(do_intersect(currentEdge,point)){
-            edges.push_back(currentEdge);
-            //cout<< "Found edge on CH perimeter ["<<currentEdge.start().x()<<" ,"<<currentEdge.start().y()<<"]["<<currentEdge.end().x()<<" ,"<<currentEdge.end().y()<<"]"<<endl;
+            replaceableEdges.push_back(currentEdge);
+            cout<< "Found edge on CH perimeter ["<<currentEdge.start().x()<<" ,"<<currentEdge.start().y()<<"]["<<currentEdge.end().x()<<" ,"<<currentEdge.end().y()<<"]"<<endl;
             return true;
         }
     }
 
     Segment_2 lastSegment(convex_hull.back(), convex_hull.front());
     if(do_intersect(lastSegment, point)){
-        edges.push_back(lastSegment);
-        //cout<< "Found edge on CH perimeter ["<<lastSegment.start().x()<<" ,"<<lastSegment.start().y()<<"]["<<lastSegment.end().x()<<" ,"<<lastSegment.end().y()<<"]"<<endl;
+        replaceableEdges.push_back(lastSegment);
+        cout<< "Found edge on CH perimeter ["<<lastSegment.start().x()<<" ,"<<lastSegment.start().y()<<"]["<<lastSegment.end().x()<<" ,"<<lastSegment.end().y()<<"]"<<endl;
         return true;
     }
     return false;
@@ -178,37 +196,37 @@ vector<Segment_2> getRedEdges(vector<Point_2> oldConvexHull, vector<Point_2> new
     (positionOfNewPoint == (newConvexHull.size()-1)) ? (lowerPoint = newConvexHull[0]) : (lowerPoint = newConvexHull[positionOfNewPoint+1]);
     (positionOfNewPoint == 0) ? (upperPoint = newConvexHull[newConvexHull.size()-1]) : (upperPoint = newConvexHull[1]);
 
-    if(isPointOnCHPerimeter(newPoint, oldConvexHull, replacedEdges)) return replacedEdges;
+    //if(isPointOnCHPerimeter(newPoint, oldConvexHull, replacedEdges)) return replacedEdges;
 
     vector<Segment_2> oldConvexHullPolygon = getPolygonEdgesFromPoints(oldConvexHull);
     vector<Segment_2> newConvexHullPolygon = getPolygonEdgesFromPoints(newConvexHull);
     for(Segment_2 oldConvexEdge: oldConvexHullPolygon) {
         bool foundEdge = false;
         for(Segment_2 newConvexEdge: newConvexHullPolygon) {
-            if (oldConvexEdge==newConvexEdge) {
+            if (segmentsEquivalent(oldConvexEdge,newConvexEdge)) {
                 foundEdge = true;
                 break;
             }
         }
         if(!foundEdge) {
             replacedEdges.push_back(oldConvexEdge);
-            //cout<<"Pushed back Red Edge ["<<oldConvexEdge.start().x()<<" ,"<<oldConvexEdge.start().y()<<"]["<<oldConvexEdge.end().x()<<" ,"<<oldConvexEdge.end().y()<<"]"<<endl;
+            cout<<"Pushed back Red Edge ["<<oldConvexEdge.start().x()<<" ,"<<oldConvexEdge.start().y()<<"]["<<oldConvexEdge.end().x()<<" ,"<<oldConvexEdge.end().y()<<"]"<<endl;
         }
     }
     return replacedEdges;
 }
 vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_2> polygon, bool sameOrientation) {
-    //cout << "I will try to find chain of edges!" << endl;
-    //cout << "[" << pointA.x() << "," << pointA.y() << "][" << pointB.x() << "," << pointB.y() << "] <- trying to find its chain in..." << endl;
-    //printPointSet(polygon);
+    cout << "I will try to find chain of edges!" << endl;
+    cout << "[" << pointA.x() << "," << pointA.y() << "][" << pointB.x() << "," << pointB.y() << "] <- trying to find its chain in..." << endl;
+    printPointSet(polygon);
     Point_2 startingPoint, endingPoint;
     if(sameOrientation){
-        //cout<<"Same orientation!"<<endl;
+        cout<<"Same orientation!"<<endl;
         startingPoint = pointA;
         endingPoint = pointB;
     }
     else{
-        //cout<<"Different orientation!"<<endl;
+        cout<<"Different orientation!"<<endl;
         startingPoint = pointB;
         endingPoint = pointA;
     }
@@ -217,46 +235,31 @@ vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_
     if (indexOfStartingPoint==polygon.end()) {
         printErrorPointNotFound(pointA, polygon);
     }
-    /*auto indexOfPointB = find(polygon.begin(), polygon.end(), pointB);
-    if (indexOfPointB==polygon.end()) {
-        printErrorPointNotFound(pointB, polygon);
-    }*/
     int index = indexOfStartingPoint - polygon.begin();
     bool foundEndOfChain = false;
-    //int indexB = indexOfPointB - polygon.begin();
-    /*int startingIndex, endingIndex;
-    if(indexA>indexB) {
-        startingIndex = indexB;
-        endingIndex = indexA;
-    } else {
-        startingIndex = indexA;
-        endingIndex = indexB;
-    }
-    for(int i=startingIndex ; i<endingIndex ; ++i){
-        chainedEdges.push_back(Segment_2(polygon[i],polygon[i+1]));
-    }*/
     while(!foundEndOfChain) {
         if (index!=(polygon.size()-1)) {
-            //cout << "Pushing: [" << polygon[index].x() << "," << polygon[index].y() << "][" << polygon[index+1].x() << "," << polygon[index+1].y() << "]" << endl;
+            cout << "Pushing: [" << polygon[index].x() << "," << polygon[index].y() << "][" << polygon[index+1].x() << "," << polygon[index+1].y() << "]" << endl;
             chainedEdges.push_back(Segment_2(polygon[index],polygon[index+1]));
             ++index;
             if (polygon[index]==endingPoint) { foundEndOfChain = true; }
         }
         else {
-            //cout << "Pushing: [" << polygon[index].x() << "," << polygon[index].y() << "][" << polygon[0].x() << "," << polygon[0].y() << "]" << endl;
+            cout << "Pushing: [" << polygon[index].x() << "," << polygon[index].y() << "][" << polygon[0].x() << "," << polygon[0].y() << "]" << endl;
             chainedEdges.push_back(Segment_2(polygon[index],polygon[0]));
             index = 0;
             if (polygon[0]==endingPoint) { foundEndOfChain = true; }
         }
     }
-    //cout << endl;
+    cout << endl;
     return chainedEdges;
 }
 
 bool segmentIntersectsPolygonEdge(Segment_2 seg, Segment_2 polygonEdge){
     const auto result = intersection(seg, polygonEdge);
     if(result){
-        if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+        if (CGAL::collinear(seg[0],seg[1],polygonEdge[0]) || CGAL::collinear(seg[0],seg[1],polygonEdge[1])/*const Segment_2* s = boost::get<Segment_2>(&*result)*/) {
+            cout << "DSAIUFNADSUIFHDSUIAHFIUADSHFIASUDFHIUDSAHFIUDSAHFIUEASDHFIUDSAHFIUDSAHFIUDSAHFIUASDHFIUDSAHFIUADSHFIUASD" << endl;
             return false;
         } else {
             const Point_2* p = boost::get<Point_2 >(&*result);
@@ -296,7 +299,7 @@ vector<Segment_2> calculateVisibleEdges(vector<Segment_2> redEdges, vector<Point
         for(Segment_2 polygonEdge : polygonEdges){
             if(segmentsEquivalent(redEdge, polygonEdge)) {
                 visibleEdges.push_back(redEdge);
-                //cout<<"Found Visible Edge ["<<redEdge.start().x()<<" ,"<<redEdge.start().y()<<"]["<<redEdge.end().x()<<" ,"<<redEdge.end().y()<<"]"<<endl;
+                cout<<"Found Visible Edge ["<<redEdge.start().x()<<" ,"<<redEdge.start().y()<<"]["<<redEdge.end().x()<<" ,"<<redEdge.end().y()<<"]"<<endl;
                 foundEdge = true;
                 break;
             }
@@ -306,7 +309,7 @@ vector<Segment_2> calculateVisibleEdges(vector<Segment_2> redEdges, vector<Point
             for(Segment_2 chainedEdge: chainedEdges){
                 if(isEdgeVisibleFromPoint(added_point,chainedEdge,polygonEdges)) {
                     visibleEdges.push_back(chainedEdge);
-                    //cout<<"Found Visible Edge ["<<chainedEdge.start().x()<<" ,"<<chainedEdge.start().y()<<"]["<<chainedEdge.end().x()<<" ,"<<chainedEdge.end().y()<<"]"<<endl;
+                    cout<<"Found Visible Edge ["<<chainedEdge.start().x()<<" ,"<<chainedEdge.start().y()<<"]["<<chainedEdge.end().x()<<" ,"<<chainedEdge.end().y()<<"]"<<endl;
                 }
             }
         }
@@ -318,8 +321,8 @@ Segment_2 randomEdgeSelection(vector<Segment_2> replaceableEdges) {
     if(replaceableEdges.size()==1)
         return replaceableEdges[0];
     int randomIndex = (std::rand() % (replaceableEdges.size()));
-    //cout << "Replaceable edges size: " << replaceableEdges.size()-1 << endl;
-    //cout << "Index: " << randomIndex << endl;
+    cout << "Replaceable edges size: " << replaceableEdges.size()-1 << endl;
+    cout << "Index: " << randomIndex << endl;
     return replaceableEdges[randomIndex];
 }
 
@@ -377,11 +380,11 @@ vector<Point_2> insertPointToPolygonPointSet(Point_2 point, Segment_2 edgeToBrea
         polygon.push_back(point);
         return polygon;
     }
-    //cout << "Index of point: [" << edgeToBreak[0].x() << "," << edgeToBreak[0].y() << "] ~> " << index1 << endl;
-    //cout << "Index of point: [" << edgeToBreak[1].x() << "," << edgeToBreak[1].y() << "] ~> " << index2 << endl;
+    cout << "Index of point: [" << edgeToBreak[0].x() << "," << edgeToBreak[0].y() << "] ~> " << index1 << endl;
+    cout << "Index of point: [" << edgeToBreak[1].x() << "," << edgeToBreak[1].y() << "] ~> " << index2 << endl;
     int startingIndex;
     (index1 > index2) ? (startingIndex = index2) : (startingIndex = index1);
-    //cout << "Will place it in position ~> " << startingIndex+1 << endl;
+    cout << "Will place it in position ~> " << startingIndex+1 << endl;
     auto insertPosition = polygon.begin() + startingIndex+1;
     polygon.insert(insertPosition,point);
     return polygon;
@@ -390,39 +393,58 @@ vector<Point_2> insertPointToPolygonPointSet(Point_2 point, Segment_2 edgeToBrea
 vector<Point_2> IncrementalAlg(vector<Point_2> pointSet, int edgeSelectionMethod, string initMethod) {
     vector<Point_2> sortedPointSet, usedPoints, convexHull, polygon;
 
+    cout << "Size of input file: " << pointSet.size() << endl;
+
     sortedPointSet = sortPointset(pointSet, initMethod);
 
-    //cout<<"Starting triangle is:\n";
+    cout << "Size of sortedPointSet: " << sortedPointSet.size() << endl;
+
+    cout<<"Starting triangle is:\n";
     for(int i=0; i<3; i++) {
         polygon.push_back(sortedPointSet.front());
-        //cout<<"["<<sortedPointSet.front().x()<<" ]["<<sortedPointSet.front().y()<<"]"<<endl;
+        cout<<"["<<sortedPointSet.front().x()<<" ]["<<sortedPointSet.front().y()<<"]"<<endl;
         usedPoints.push_back(sortedPointSet.front());
         sortedPointSet.erase(sortedPointSet.begin());
     }
+
+    int collinearIndex = 2;
+    while(CGAL::collinear(polygon[collinearIndex-2],polygon[collinearIndex-1],polygon[collinearIndex])) {
+        polygon.push_back(sortedPointSet.front());
+        usedPoints.push_back(sortedPointSet.front());
+        sortedPointSet.erase(sortedPointSet.begin());
+        ++collinearIndex;
+    }
+
+    //exit(1);
+
     cout<<endl;
     srand(time(NULL));
     while(!sortedPointSet.empty()){
-        //printPointSet(polygon);
-        //cout<<"Creating CH!"<<endl;
+        printPointSet(polygon);
+        printSegList(polygon);
+        cout<<"Creating CH!"<<endl;
         convexHull = createConvexHull(usedPoints);
+        cout << "Old convex Hull:" << endl;
+        printPointSet(convexHull);
 
         Point_2 currentPoint = sortedPointSet.front();
         sortedPointSet.erase(sortedPointSet.begin());
         usedPoints.push_back(currentPoint);
 
-        //cout<<"Creating the new CH!"<<endl;
+        cout<<"Creating the new CH!"<<endl;
         vector<Point_2> newConvexHull = createConvexHull(usedPoints);
-        //cout<<"Calculating Red Edges when adding Point ["<<currentPoint.x()<<" , "<<currentPoint.y()<<"]"<<endl;
+        cout << "New convex Hull:" << endl;
+        printPointSet(newConvexHull);
+        cout<<"Calculating Red Edges when adding Point ["<<currentPoint.x()<<" , "<<currentPoint.y()<<"]"<<endl;
         vector<Segment_2> redEdges = getRedEdges(convexHull, newConvexHull,currentPoint);
-        //cout<<"Calculating Replaceable Edges!"<<endl;
+        cout<<"Calculating Replaceable Edges!"<<endl;
         vector<Segment_2> replaceableEdges = calculateVisibleEdges(redEdges,polygon,currentPoint,convexHull);
-        //cout<<"Calculating Edge to Replace!"<<endl;
+        cout<<"Calculating Edge to Replace!"<<endl;
         Segment_2 edgeToReplace = getPolygonEdgeToReplace(replaceableEdges,currentPoint,polygon,edgeSelectionMethod);
-        //cout<<"Replacing Edge ["<<edgeToReplace.start().x()<<" ,"<<edgeToReplace.start().y()<<"]["<<edgeToReplace.end().x()<<" ,"<<edgeToReplace.end().y()<<"]"<<endl;
+        cout<<"Replacing Edge ["<<edgeToReplace.start().x()<<" ,"<<edgeToReplace.start().y()<<"]["<<edgeToReplace.end().x()<<" ,"<<edgeToReplace.end().y()<<"]"<<endl;
         polygon = insertPointToPolygonPointSet(currentPoint,edgeToReplace,polygon);
-        //cout<<endl<<endl;
+        cout<<endl<<endl;
     }
-
     return polygon;
 }
 
@@ -476,7 +498,6 @@ int main(int argc, char* argv[]) {
             incrementalInit = argv[i+1];
         }
     }
-
     //printUserInput(inputFileName,outputFileName,algorithmName,edgeSelection,incrementalInit);
     vector<Point_2> test = ProcessInputFile(inputFileName);
 
