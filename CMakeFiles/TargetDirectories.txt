@@ -1,0 +1,5 @@
+/home/kontos/code/di/project/PointSetPolygonization/CMakeFiles/edit_cache.dir
+/home/kontos/code/di/project/PointSetPolygonization/CMakeFiles/rebuild_cache.dir
+/home/kontos/code/di/project/PointSetPolygonization/CMakeFiles/cgal_check_build_system.dir
+/home/kontos/code/di/project/PointSetPolygonization/CMakeFiles/ALL_CGAL_TARGETS.dir
+/home/kontos/code/di/project/PointSetPolygonization/CMakeFiles/main.dir
