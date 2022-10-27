@@ -76,7 +76,7 @@ void printErrorPointNotFound(Point_2 point, vector<Point_2> polygon) {
     cout << endl;
     cout << point.x() << " " << point.y() << endl;
     cout << "^This *Point* was not found in vector!" << endl;
-    printPointSet(polygon);
+    //printPointSet(polygon);
     exit(-1);
 }
 
@@ -196,7 +196,7 @@ vector<Segment_2> getRedEdges(vector<Point_2> oldConvexHull, vector<Point_2> new
     (positionOfNewPoint == (newConvexHull.size()-1)) ? (lowerPoint = newConvexHull[0]) : (lowerPoint = newConvexHull[positionOfNewPoint+1]);
     (positionOfNewPoint == 0) ? (upperPoint = newConvexHull[newConvexHull.size()-1]) : (upperPoint = newConvexHull[1]);
 
-    //if(isPointOnCHPerimeter(newPoint, oldConvexHull, replacedEdges)) return replacedEdges;
+    //ιf(isPointOnCHPerimeter(newPoint, oldConvexHull, replacedEdges)) return replacedEdges;
 
     vector<Segment_2> oldConvexHullPolygon = getPolygonEdgesFromPoints(oldConvexHull);
     vector<Segment_2> newConvexHullPolygon = getPolygonEdgesFromPoints(newConvexHull);
@@ -258,7 +258,7 @@ vector<Segment_2> findChainOfEdges(Point_2 pointA, Point_2 pointB, vector<Point_
 bool segmentIntersectsPolygonEdge(Segment_2 seg, Segment_2 polygonEdge){
     const auto result = intersection(seg, polygonEdge);
     if(result){
-        if (CGAL::collinear(seg[0],polygonEdge[1],polygonEdge[0]))/*const Segment_2* s = boost::get<Segment_2>(&*result)*/ {
+        if (const Segment_2* s = boost::get<Segment_2>(&*result))/*(CGAL::collinear(seg[0],polygonEdge[1],polygonEdge[0]))*/{
             //cout<<"COLLINEAR: ("<<seg[0].x()<<","<<seg[0].y()<<") ("<<polygonEdge[0].x()<<","<<polygonEdge[0].y()<<") ("<<polygonEdge[1].x()<<","<<polygonEdge[1].y()<<")"<<endl;
             return true;
         } else {
@@ -403,7 +403,7 @@ vector<Point_2> IncrementalAlg(vector<Point_2> pointSet, int edgeSelectionMethod
     //cout<<"Starting triangle is:\n";
     for(int i=0; i<3; i++) {
         polygon.push_back(sortedPointSet.front());
-        //cout<<"["<<sortedPointSet.front().x()<<" ]["<<sortedPointSet.front().y()<<"]"<<endl;
+        //<<"["<<sortedPointSet.front().x()<<" ]["<<sortedPointSet.front().y()<<"]"<<endl;
         usedPoints.push_back(sortedPointSet.front());
         sortedPointSet.erase(sortedPointSet.begin());
     }
