@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "incremental.h"
+#include "convex_hull.h"
 #include "prints.h"
 
 vector<Point_2> ProcessInputFile(string file_name) {
@@ -43,7 +44,8 @@ int main(int argc, char* argv[]) {
     vector<Point_2> test = ProcessInputFile(inputFileName);
 
     auto started = std::chrono::high_resolution_clock::now();
-    vector<Point_2> result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
+    //vector<Point_2> result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
+    vector<Point_2> result = ConvexHullAlg(test, stoi(edgeSelection), incrementalInit);
     auto done = std::chrono::high_resolution_clock::now();
 
     cout<<"Testing file: "<<inputFileName<<"  Selection: "<<stoi(edgeSelection)<<" Initialization: "<< incrementalInit<<endl;

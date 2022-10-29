@@ -38,11 +38,11 @@ vector<Point_2> sortPointset(vector<Point_2> pointSet, string sortMethod) {
 }
 
 bool comparePointXdesc(Point_2 A, Point_2 B) {
-    if (A.x()==B.x()) return A.y()>B.y();
+    if (A.x()==B.x()) return A.y()<B.y();
     return A.x()>B.x();
 }
 bool comparePointXasc(Point_2 A, Point_2 B) {
-    if (A.x()==B.x()) return A.y()>B.y();
+    if (A.x()==B.x()) return A.y()<B.y();
     return A.x()<B.x();
 }
 bool comparePointYdesc(Point_2 A, Point_2 B) {
