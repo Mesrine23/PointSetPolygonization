@@ -4,10 +4,10 @@ vector<Point_2> ConvexHullAlg(vector<Point_2> pointSet, int edgeSelectionMethod,
     vector<Point_2> sortedPointSet, polygon;
     sortedPointSet = sortPointset(pointSet,"1b");
     polygon = createConvexHull(pointSet);
-    //printPointSet(polygon);
+    printPointSet(polygon);
     removeUsedPoints(polygon,pointSet);
     addUntrackedCollinearPointsInPolygonalLine(polygon,pointSet);
-    //printPointSet(polygon);
+    printPointSet(polygon);
     removeUsedPoints(polygon,pointSet);
     return polygon;
 }
@@ -28,16 +28,15 @@ void addUntrackedCollinearPointsInPolygonalLine(vector<Point_2>& polygon, vector
     for(int pointSetIndex=0 ; pointSetIndex<pointSet.size() ; ++pointSetIndex) {
         for(int polygonIndex=0 ; polygonIndex<polygon.size() ; ++polygonIndex) {
             int nextElementIndex = polygonIndex==(polygon.size()-1) ? 0 : (polygonIndex+1);
-            cout << "Testing: " << polygon[polygonIndex] << " , " << polygon[nextElementIndex] << " , " << pointSet[pointSetIndex] << endl;
-            if(CGAL::collinear(polygon[polygonIndex],polygon[nextElementIndex],pointSet[pointSetIndex])) {
-                if (pointSet[pointSetIndex].x() <= polygon[nextElementIndex].x() &&
-                    pointSet[pointSetIndex].y() <= polygon[nextElementIndex].y()) {
-                    polygon = insertPointToPolygonPointSet(pointSet[pointSetIndex],
-                                                           Segment_2(polygon[polygonIndex], polygon[nextElementIndex]),
-                                                           polygon);
-                    break;
-                }
+            //cout << "Testing: " << polygon[polygonIndex] << " , " << polygon[nextElementIndex] << " , " << pointSet[pointSetIndex] << endl;
+            const auto doIntersect = CGAL::intersection(Segment_2(polygon[polygonIndex],polygon[nextElementIndex]),pointSet[pointSetIndex]);
+            if (doIntersect) {
+                polygon = insertPointToPolygonPointSet(pointSet[pointSetIndex],
+                                                       Segment_2(polygon[polygonIndex], polygon[nextElementIndex]),
+                                                       polygon);
+                break;
             }
+
         }
     }
 }
