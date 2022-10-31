@@ -5,9 +5,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <utility>
 #include <numeric>
 #include <fstream>
 #include <random>
+#include <CGAL/squared_distance_2.h>
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Convex_hull_traits_adapter_2.h>
 #include <CGAL/property_map.h>
