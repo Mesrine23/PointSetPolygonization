@@ -49,9 +49,10 @@ void addUntrackedCollinearPointsInPolygonalLine(vector<Point_2>& polygon, vector
 }
 
 Point_2 findClosestVisiblePointToSegment(Segment_2 seg, vector<Point_2> points, vector<Point_2> polygon){
-    pair<Point_2, int> minDistance=(points[0], -1);
+    pair<Point_2, int> minDistance(points[0], -1);
+    vector<Segment_2> polygonEdges = getPolygonEdgesFromPoints(polygon);
     for(Point_2 &point : points){
-        if(isEdgeVisibleFromPoint(point, seg, polygon)){
+        if(isEdgeVisibleFromPoint(point, seg, polygonEdges)){
             if(int dist = abs(squared_distance(point, seg))<minDistance.second){
                 minDistance.first = point;
                 minDistance.second = dist;
