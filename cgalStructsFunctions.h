@@ -18,5 +18,6 @@ bool segmentsEquivalent(Segment_2, Segment_2);
 vector<Point_2> insertPointToPolygonPointSet(Point_2, Segment_2, vector<Point_2>);
 bool sameOrientation(vector<Point_2> , vector<Point_2> );
 void printErrorPointNotFound(Point_2, vector<Point_2>);
+vector<int> createVectorOfRandomInts(int range);
 
 #endif

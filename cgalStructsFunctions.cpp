@@ -178,3 +178,15 @@ void printErrorPointNotFound(Point_2 point, vector<Point_2> polygon) {
     //printPointSet(polygon);
     exit(-1);
 }
+
+vector<int> createVectorOfRandomInts(int range) {
+    constexpr int SIZE = range;
+    std::vector<int> randomInts(SIZE);
+    std::iota(begin(randomInts), end(randomInts), 0);
+    std::random_shuffle(begin(randomInts), end(randomInts));
+    randomInts.resize(SIZE);
+//    for(int i=0 ; i<SIZE ; ++i) {
+//        cout << values[i] << endl;
+//    }
+    return randomInts;
+}

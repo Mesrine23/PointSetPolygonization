@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <numeric>
+#include <algorithm>
 #include <fstream>
 #include <random>
 #include <CGAL/squared_distance_2.h>
