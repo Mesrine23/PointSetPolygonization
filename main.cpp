@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     auto started = std::chrono::high_resolution_clock::now();
     //vector<Point_2> result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
-    vector<Point_2> result = ConvexHullAlg(test, stoi(edgeSelection), incrementalInit);
+    vector<Point_2> result = ConvexHullAlg(test, stoi(edgeSelection));
     auto done = std::chrono::high_resolution_clock::now();
 
     cout<<"Testing file: "<<inputFileName<<"  Selection: "<<stoi(edgeSelection)<<" Initialization: "<< incrementalInit<<endl;
@@ -55,3 +55,4 @@ int main(int argc, char* argv[]) {
 }
 
 // ./main -i ./tests/euro-night-0000010.instance -o outputFile.txt -algorithm incremental -edge_selection 1 -initialization 2b
+// ./main -i test.txt -o output.txt -algorithm convex_hull -edge_selection 2 -initialization 2b
