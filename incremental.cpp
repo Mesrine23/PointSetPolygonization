@@ -73,11 +73,11 @@ Segment_2 randomEdgeSelection(vector<Segment_2> replaceableEdges) {
 Segment_2 minAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
     Segment_2 edgeToReturn = replaceableEdges[0];
     vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
-    long double minArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    long double minArea = abs(getSimplePolygonFromPoints(currentPolygonPointSet).area());
     for(int i=1 ; i<replaceableEdges.size() ; ++i) {
         Segment_2 tempEdgeToReturn = replaceableEdges[i];
         vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
-        long double tempMinArea = getSimplePolygonFromPoints(tempPolygonPointSet).area();
+        long double tempMinArea = abs(getSimplePolygonFromPoints(tempPolygonPointSet).area());
         if (tempMinArea < minArea) {
             edgeToReturn = replaceableEdges[i];
             minArea = tempMinArea;
@@ -89,11 +89,11 @@ Segment_2 minAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 curre
 Segment_2 maxAreaEdgeSelection(vector<Segment_2> replaceableEdges, Point_2 currentPoint, vector<Point_2> polygonPointSet) {
     Segment_2 edgeToReturn = replaceableEdges[0];
     vector<Point_2> currentPolygonPointSet = insertPointToPolygonPointSet(currentPoint,edgeToReturn,polygonPointSet);
-    long double maxArea = getSimplePolygonFromPoints(currentPolygonPointSet).area();
+    long double maxArea = abs(getSimplePolygonFromPoints(currentPolygonPointSet).area());
     for(int i=1 ; i<replaceableEdges.size() ; ++i) {
         Segment_2 tempEdgeToReturn = replaceableEdges[i];
         vector<Point_2> tempPolygonPointSet = insertPointToPolygonPointSet(currentPoint,tempEdgeToReturn,polygonPointSet);
-        long double tempMaxArea = getSimplePolygonFromPoints(tempPolygonPointSet).area();
+        long double tempMaxArea = abs(getSimplePolygonFromPoints(tempPolygonPointSet).area());
         if (tempMaxArea > maxArea) {
             edgeToReturn = replaceableEdges[i];
             maxArea = tempMaxArea;
