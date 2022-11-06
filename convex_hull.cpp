@@ -8,8 +8,6 @@ vector<Point_2> ConvexHullAlg(vector<Point_2> pointSet, int edgeSelectionMethod)
     addUntrackedCollinearPointsInPolygonalLine(polygon,pointSet);
     removeUsedPoints(polygon,pointSet);
     while(!pointSet.empty()) {
-        cout<<"########"<<endl;
-        printPointSet(pointSet);
         vector<pair<Segment_2, Point_2>> pairOfSegmentAndClosestPoint = getPairOfClosestPointToSegments(pointSet,polygon);
         pair<Segment_2, Point_2> pairToReplace;
         switch (edgeSelectionMethod) {
@@ -27,37 +25,16 @@ vector<Point_2> ConvexHullAlg(vector<Point_2> pointSet, int edgeSelectionMethod)
                 exit(-1);
         }
         polygon = insertPointToPolygonPointSet(pairToReplace.second, pairToReplace.first, polygon);
-        cout<<"INSERTED POINT:("<<pairToReplace.second.x()<<","<<pairToReplace.second.y()<<")"<<endl;
-        cout<<"AT EDGE:("<<pairToReplace.first.start().x()<<","<<pairToReplace.first.start().y()<<")("<<pairToReplace.first.end().x()<<","<<pairToReplace.first.end().y()<<")"<<endl;
-//        if(int index = find(pointSet.begin(), pointSet.end(), pairToReplace.second)!=pointSet.end())
-//            pointSet.erase(next(pointSet.begin(),index));
         pointSet.erase(std::remove(pointSet.begin(), pointSet.end(), pairToReplace.second), pointSet.end());
 
     }
-    printPointSet(polygon);
-    printSegList(polygon);
     return polygon;
 }
 
 void removeUsedPoints(vector<Point_2> polygon, vector<Point_2>& pointSet) {
-//    int index = 0;
-//    for(int polygonIndex=0 ; polygonIndex < polygon.size() ; polygonIndex++) {
-//        for(int pointSetIndex=0 ; pointSetIndex < pointSet.size() ; pointSetIndex++) {
-//            if(polygon[polygonIndex]==pointSet[pointSetIndex]) {
-//                pointSet.erase(pointSet.begin() + pointSetIndex);
-//                break;
-//            }
-//        }
-//    }
     for(Point_2 & polygonPoint : polygon){
-//        int index = find(pointSet.begin(), pointSet.end(), polygonPoint);
-//        if(index!=pointSet.end())
-//            pointSet.erase(index+pointSet.begin());
-
         pointSet.erase(std::remove(pointSet.begin(), pointSet.end(), polygonPoint), pointSet.end());
-
     }
-
 }
 
 void addUntrackedCollinearPointsInPolygonalLine(vector<Point_2>& polygon, vector<Point_2>& pointSet) {
@@ -65,7 +42,6 @@ void addUntrackedCollinearPointsInPolygonalLine(vector<Point_2>& polygon, vector
     for(int pointSetIndex=size ; pointSetIndex>=0 ; --pointSetIndex) {
         for(int polygonIndex=0 ; polygonIndex<polygon.size() ; ++polygonIndex) {
             int nextElementIndex = polygonIndex==(polygon.size()-1) ? 0 : (polygonIndex+1);
-            //cout << "Testing: " << polygon[polygonIndex] << " , " << polygon[nextElementIndex] << " , " << pointSet[pointSetIndex] << endl;
             const auto doIntersect = CGAL::intersection(Segment_2(polygon[polygonIndex],polygon[nextElementIndex]),pointSet[pointSetIndex]);
             if (doIntersect) {
                 polygon = insertPointToPolygonPointSet(pointSet[pointSetIndex],
@@ -83,30 +59,20 @@ vector<pair<Segment_2,Point_2>> getPairOfClosestPointToSegments(vector<Point_2> 
     vector<Segment_2> polygonEdges = getPolygonEdgesFromPoints(polygon);
     for(Segment_2 edge : polygonEdges) {
         Point_2 closestPoint = findClosestPointToSegment(edge,internalPoints);
-        //cout<<"point "<<closestPoint.x()<<"  "<<closestPoint.y()<<endl;
-        //cout<<"edge "<<edge.start().x()<<"  "<<edge.start().y()<<" // "<<edge.end().x()<<"  "<<edge.end().y()<<endl;
         pairs.push_back(make_pair(edge,closestPoint));
     }
-    cout<<endl<<endl;
     return pairs;
 };
 
 Point_2 findClosestPointToSegment(Segment_2 seg, vector<Point_2> internalPoints){
     pair<Point_2, int> minDistance(internalPoints[0], abs(squared_distance(internalPoints[0], seg)));
-    //vector<Segment_2> polygonEdges = getPolygonEdgesFromPoints(polygon);
     for(int i=1; i<internalPoints.size(); i++){
-        //if(isEdgeVisibleFromPoint(point, seg, polygonEdges)){
         int dist = abs(squared_distance(internalPoints[i], seg));
         if(dist<minDistance.second){
             minDistance.first = internalPoints[i];
             minDistance.second = dist;
         }
-        //}
     }
-    /*if(minDistance.second == -1){
-        cout<<"Visible points from Segment!"<<endl;
-        exit(1);
-    }*/
     return minDistance.first;
 }
 

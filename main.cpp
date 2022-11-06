@@ -11,7 +11,6 @@ vector<Point_2> ProcessInputFile(string file_name) {
     getline(file, garbageInfo);
     getline(file, garbageInfo);
     while (file >> lineIterator >> xCordinate >> yCordinate)
-        //cout << "[" << xCordinate << "," << yCordinate << "]" << endl;
         pointSet.push_back(Point_2(xCordinate, yCordinate));
     return pointSet;
 }
@@ -40,19 +39,26 @@ int main(int argc, char* argv[]) {
             incrementalInit = argv[i+1];
         }
     }
-    //printUserInput(inputFileName,outputFileName,algorithmName,edgeSelection,incrementalInit);
+    std::ofstream out(outputFileName.c_str());
+    std::streambuf *coutbuf = std::cout.rdbuf();
+    std::cout.rdbuf(out.rdbuf());
     vector<Point_2> test = ProcessInputFile(inputFileName);
-
+    cout << "Polygonization" << endl;
+    for(int i=0 ; i<test.size() ; ++i) {
+        cout << test[i].x() << " " << test[i].y() << endl;
+    }
+    vector<Point_2> result;
     auto started = std::chrono::high_resolution_clock::now();
-    //vector<Point_2> result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
-    vector<Point_2> result = ConvexHullAlg(test, stoi(edgeSelection));
+    if (algorithmName=="incremental") {
+        result = IncrementalAlg(test, stoi(edgeSelection), incrementalInit);
+    } else if (algorithmName=="convex_hull") {
+        result = ConvexHullAlg(test, stoi(edgeSelection));
+    } else {
+        cout << "Wrong algorithm name!" << endl;
+        exit(0);
+    }
     auto done = std::chrono::high_resolution_clock::now();
 
-    cout<<"Testing file: "<<inputFileName<<"  Selection: "<<stoi(edgeSelection)<<" Initialization: "<< incrementalInit<<endl;
     printResults(result, stoi(edgeSelection), algorithmName, incrementalInit, std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count());
-    cout<<endl<<endl;
     return 0;
 }
-
-// ./main -i ./tests/euro-night-0000010.instance -o outputFile.txt -algorithm incremental -edge_selection 1 -initialization 2b
-// ./main -i test.txt -o output.txt -algorithm convex_hull -edge_selection 2 -initialization 2b

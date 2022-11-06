@@ -28,26 +28,16 @@ void printUserInput(string inputFileName, string outputFileName, string algorith
 }
 
 void printResults(vector<Point_2> points, int edgeSelection, string algorithm, string incrementalInit, unsigned long milliseconds){
-//    cout<<"Polygonization"<<endl;
-//    for(Point_2 point : points)
-//        cout<<point.x()<<" "<<point.y()<<endl;
-//
-//    for(int i=0; i<(points.size()-1); i++)
-//        cout<<points[i].x()<<" "<<points[i].y()<<" "<<points[i+1].x()<<" "<<points[i+1].y()<<endl;
-//
-//    int size = points.size();
-//    cout<<points[size-1].x()<<" "<<points[size-1].y()<<" "<<points[0].x()<<" "<<points[0].y()<<endl;
-
-//    if(algorithm=="incremental")
-//        cout<<"Algorithm: incremental"<<endl;
-//    else if(algorithm=="convex_hull")
-//        cout<<"Algorithm: convex_hull"<<endl;
-
+    for(int i=0 ; i<points.size() ; ++i) {
+        int nextIndex = i==(points.size()-1) ? 0 : (i+1);
+        cout << points[i].x() << " " << points[i].y() << " " << points[nextIndex].x() << " " << points[nextIndex].y() << endl;
+    }
+    cout << "Algorithm: " << algorithm << "_edge_selection" << edgeSelection;
+    incrementalInit.empty() ? (cout << endl) : (cout << "_initialization" << incrementalInit << endl);
     Polygon_2 polygon = getSimplePolygonFromPoints(points);
     long double polygonArea = abs(polygon.area());
     long double convexHullArea = abs(getSimplePolygonFromPoints(createConvexHull(points)).area());
-    cout<<"area: "<<polygonArea<<endl;
-    cout<<"ratio: "<<(polygonArea/convexHullArea)<<endl;
-    cout<<"construcution time:"<<milliseconds<<"ms"<<endl;
-    cout<<"convex hull area: "<<convexHullArea<<endl;
+    cout<< "area: " <<polygonArea << endl;
+    cout<< "ratio: " << (polygonArea/convexHullArea) << endl;
+    cout<< "construcution time: " << milliseconds <<endl;
 }
