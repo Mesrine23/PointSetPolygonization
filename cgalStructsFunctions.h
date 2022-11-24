@@ -5,6 +5,7 @@
 
 vector<Segment_2> getPolygonEdgesFromPoints(vector<Point_2>);
 Polygon_2 getSimplePolygonFromPoints(vector<Point_2>);
+bool isPolygonSimple(vector<Point_2>);
 bool comparePointXdesc(Point_2, Point_2);
 bool comparePointXasc(Point_2, Point_2);
 bool comparePointYdesc(Point_2, Point_2);

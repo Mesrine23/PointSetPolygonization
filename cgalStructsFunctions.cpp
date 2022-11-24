@@ -21,6 +21,13 @@ Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
     }
 }
 
+bool isPolygonSimple(vector<Point_2> pointSet) {
+    Polygon_2 polygon;
+    for(int i=0 ; i<pointSet.size() ; ++i)
+        polygon.push_back(pointSet[i]);
+    return polygon.is_simple();
+}
+
 vector<Point_2> sortPointset(vector<Point_2> pointSet, string sortMethod) {
     if (sortMethod == "1a")
         std::sort(pointSet.begin(), pointSet.end(), comparePointXdesc);
