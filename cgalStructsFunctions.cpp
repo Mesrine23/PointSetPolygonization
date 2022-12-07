@@ -108,6 +108,19 @@ bool segmentIntersectsPolygonEdge(Segment_2 seg, Segment_2 polygonEdge){
     return false;
 }
 
+bool segmentIntersectsSegment(Segment_2 seg, Segment_2 seg2){
+    const auto result = intersection(seg, seg2);
+    if(result)
+        return true;
+    return false;
+}
+
+bool edgesAreAdjacent(Segment_2 seg, Segment_2 seg2){
+    if(seg.start()==seg2.start() or seg.start()==seg2.end()) return true;
+    if(seg.end()==seg2.start() or seg.end()==seg2.end()) return true;
+    return false;
+}
+
 bool isEdgeVisibleFromPoint(Point_2 point, Segment_2 edge, vector<Segment_2> polygon){
     Point_2 edgeMidpoint((edge.start().x()+edge.end().x())/2, (edge.start().y()+edge.end().y())/2);
     Segment_2 edgeA(point, edge[0]), edgeB(point, edge[1]), edgeMid(point, edgeMidpoint);
