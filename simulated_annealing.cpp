@@ -35,10 +35,10 @@ vector<Point_2> simulatedAnnealing(vector <Point_2> pointset, int L, int edgeSel
     }
 
     double currentEnergy, polygonArea, convexHullArea;
-    int pointsetSize = pointset.size();
-    Polygon_2 polygonLine = getSimplePolygonFromPoints(pointset);
+    int pointsetSize = currentPolygon.size();
+    Polygon_2 polygonLine = getSimplePolygonFromPoints(currentPolygon);
     polygonArea = abs(polygonLine.area());
-    convexHullArea = abs(getSimplePolygonFromPoints(createConvexHull(pointset)).area());
+    convexHullArea = abs(getSimplePolygonFromPoints(createConvexHull(currentPolygon)).area());
     currentEnergy = calculateEnergy(polygonArea, convexHullArea, pointsetSize, edgeSelection);
     double T = 1.0;
     StepResult stepResult;
@@ -47,17 +47,18 @@ vector<Point_2> simulatedAnnealing(vector <Point_2> pointset, int L, int edgeSel
             stepResult = step(currentPolygon);
         }
         while(!transitionValid(currentPolygon, stepResult));
-        double tempArea = calculateNewArea(pointset, polygonArea, stepResult, stepType);
+        double tempArea = calculateNewArea(currentPolygon, polygonArea, stepResult, stepType);
         double tempEnergy = calculateEnergy(tempArea, convexHullArea, pointsetSize, edgeSelection);
         double energyDifference = tempEnergy-currentEnergy;
         if(energyDifference<0 or metropolis(energyDifference, T)){
             currentEnergy = tempEnergy;
             polygonArea = tempArea;
-            applyTransition(pointset, stepResult);
+            applyTransition(currentPolygon, stepResult);
         }
         T-= 1.0/L;
     }
 
+    return currentPolygon;
 }
 
 bool metropolis(double energyDifference, double T){
