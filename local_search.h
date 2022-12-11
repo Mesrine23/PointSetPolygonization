@@ -6,8 +6,12 @@
 #include "prints.h"
 
 vector<Point_2> LocalSearchAlg(vector<Point_2>, int, double, bool);
-vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2>);
+vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2>, int);
 vector<vector<Point_2>> getPossiblePolygonChangesForMultiplePoints(vector<Point_2>, int, int);
 void addChangedPointSetsInPossibleChangesVector(vector<vector<Point_2>>&, vector<vector<Point_2>>);
 vector<Point_2> getChangeWithMaxArea(vector<vector<Point_2>>);
 vector<Point_2> getChangeWithMinArea(vector<vector<Point_2>>);
+Point_2 getPreviousPointFromChainOfPoints(vector<Point_2>, int);
+Point_2 getNextPointFromChainOfPoints(vector<Point_2>, int, int);
+
+#endif

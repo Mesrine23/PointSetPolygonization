@@ -197,3 +197,34 @@ vector<int> createVectorOfRandomInts(int range) {
 //    }
     return randomInts;
 }
+
+bool segmentIntersectsSegmentXXX(Segment_2 seg, Segment_2 seg2){
+    const auto result = intersection(seg, seg2);
+    if(result){
+        if (const Segment_2* s = boost::get<Segment_2>(&*result))/*(CGAL::collinear(seg[0],polygonEdge[1],polygonEdge[0]))*/{
+            //cout<<"COLLINEAR: ("<<seg[0].x()<<","<<seg[0].y()<<") ("<<polygonEdge[0].x()<<","<<polygonEdge[0].y()<<") ("<<polygonEdge[1].x()<<","<<polygonEdge[1].y()<<")"<<endl;
+            return true;
+        } else {
+            const Point_2* p = boost::get<Point_2 >(&*result);
+            if(*p==seg.start() && *p==seg2.start()) return false;
+            if(*p==seg.end() && *p==seg2.end()) return false;
+            if(*p==seg.start() && *p==seg2.end()) return false;
+            if(*p==seg.end() && *p==seg2.start()) return false;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool segmentIntersectsSegment(Segment_2 seg, Segment_2 seg2) {
+    const auto result = intersection(seg, seg2);
+    if(result)
+        return true;
+    return false;
+}
+
+bool edgesAreAdjacent(Segment_2 seg, Segment_2 seg2){
+    if(seg.start()==seg2.start() or seg.start()==seg2.end()) return true;
+    if(seg.end()==seg2.start() or seg.end()==seg2.end()) return true;
+    return false;
+}
