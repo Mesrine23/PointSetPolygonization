@@ -15,6 +15,7 @@ Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
     if (polygon.is_simple()) {
         return polygon;
     } else {
+        //return  polygon;
         cout << endl << "Not a simple polygon!" << endl;
         //*((char*)0) = 0;
         exit(-1);

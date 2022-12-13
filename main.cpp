@@ -3,6 +3,7 @@
 #include "convex_hull.h"
 #include "local_search.h"
 #include "simulated_annealing.h"
+#include "spatial_subdivision.h"
 #include "prints.h"
 
 vector<Point_2> ProcessInputFile(string file_name) {
@@ -82,7 +83,7 @@ int main(int argc, char* argv[]) {
     if (initAlgorithm=="incremental") {
         result = IncrementalAlg(test, 1, "1a");
     } else if (initAlgorithm=="convex_hull") {
-        result = ConvexHullAlg(test, minmax==1 ? 2 : 3);
+        result = ConvexHullAlg(test, 1);
     } else {
         cout << "Wrong initialisation algorithm name!" << endl;
         exit(0);
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
         else if(annealing == "global")
             newPolygon = SimulatedAnnealing(result, stoi(L), minmax, 2);
         else if(annealing == "subdivision")
-            newPolygon = SimulatedAnnealing(result, stoi(L), minmax, 3);
+            newPolygon = spatialSubdivision(test, 15, stoi(L), minmax, (initAlgorithm=="incremental" ? 1 : 2));
         else{
             cout<<"Wrong annealing parameter!"<<endl;
             exit(0);
