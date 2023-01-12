@@ -65,9 +65,9 @@ vector<pair<Segment_2,Point_2>> getPairOfClosestPointToSegments(vector<Point_2> 
 };
 
 Point_2 findClosestPointToSegment(Segment_2 seg, vector<Point_2> internalPoints){
-    pair<Point_2, int> minDistance(internalPoints[0], abs(squared_distance(internalPoints[0], seg)));
+    pair<Point_2, long double> minDistance(internalPoints[0], abs(squared_distance(internalPoints[0], seg)));
     for(int i=1; i<internalPoints.size(); i++){
-        int dist = abs(squared_distance(internalPoints[i], seg));
+        long double dist = abs(squared_distance(internalPoints[i], seg));
         if(dist<minDistance.second){
             minDistance.first = internalPoints[i];
             minDistance.second = dist;

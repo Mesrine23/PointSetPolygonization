@@ -5,7 +5,7 @@
 #include "cgalStructsFunctions.h"
 #include "prints.h"
 
-vector<Point_2> LocalSearchAlg(vector<Point_2>, int, double, bool);
+vector<Point_2> LocalSearchAlg(vector<Point_2>, int, double, bool, long&);
 vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2>, int);
 vector<vector<Point_2>> getPossiblePolygonChangesForMultiplePoints(vector<Point_2>, int, int);
 void addChangedPointSetsInPossibleChangesVector(vector<vector<Point_2>>&, vector<vector<Point_2>>);

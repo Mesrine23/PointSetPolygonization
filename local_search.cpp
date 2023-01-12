@@ -1,6 +1,7 @@
 #include "local_search.h"
 
-vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double threshold, bool isMax) {
+vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double threshold, bool isMax, long & time) {
+    auto started=chrono::high_resolution_clock::now();
     long double polygonArea = abs(getSimplePolygonFromPoints(polygon).area());
     long double newPolygonArea = 0;
 
@@ -34,6 +35,12 @@ vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double 
             if(newPolygonArea>=polygonArea)
                 break;
             polygon = newPolygon;
+        }
+        auto done = chrono::high_resolution_clock::now();
+        long passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
+        if(time-passed_time<0){
+            time=-1;
+            return polygon;
         }
     }
     return polygon;

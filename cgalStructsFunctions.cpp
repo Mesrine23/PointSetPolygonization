@@ -1,12 +1,5 @@
 #include "cgalStructsFunctions.h"
 
-vector<Segment_2> getPolygonEdgesFromPoints(vector<Point_2> pointSet) {
-    vector<Segment_2> polygon;
-    for(int i=0 ; i<pointSet.size() ; ++i){
-        (i != (pointSet.size()-1)) ? polygon.push_back(Segment_2(pointSet[i],pointSet[i+1])) : polygon.push_back(Segment_2(pointSet[i],pointSet[0]));
-    }
-    return polygon;
-}
 
 Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
     Polygon_2 polygon;
@@ -19,6 +12,14 @@ Polygon_2 getSimplePolygonFromPoints(vector<Point_2> pointSet) {
         //*((char*)0) = 0;
         exit(-1);
     }
+}
+
+vector<Segment_2> getPolygonEdgesFromPoints(vector<Point_2> pointSet) {
+    vector<Segment_2> polygon;
+    for(int i=0 ; i<pointSet.size() ; ++i){
+        (i != (pointSet.size()-1)) ? polygon.push_back(Segment_2(pointSet[i],pointSet[i+1])) : polygon.push_back(Segment_2(pointSet[i],pointSet[0]));
+    }
+    return polygon;
 }
 
 bool isPolygonSimple(vector<Point_2> pointSet) {

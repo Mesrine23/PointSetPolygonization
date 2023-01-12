@@ -28,10 +28,11 @@ void printUserInput(string inputFileName, string outputFileName, string algorith
 }
 
 void printResults(vector<Point_2> points, int minmax, string algorithm, unsigned long milliseconds, vector<Point_2> newPolygonPoints){
-    for(int i=0 ; i<points.size() ; ++i) {
-        int nextIndex = i==(points.size()-1) ? 0 : (i+1);
-        cout << points[i].x() << " " << points[i].y() << " " << points[nextIndex].x() << " " << points[nextIndex].y() << endl;
-    }
+//    for(int i=0 ; i<points.size() ; ++i) {
+//        int nextIndex = i==(points.size()-1) ? 0 : (i+1);
+//        cout << points[i].x() << " " << points[i].y() << " " << points[nextIndex].x() << " " << points[nextIndex].y() << endl;
+//    }
+
     cout << "Algorithm: " << algorithm << "_" << (minmax==1 ? "min" : "max") << endl;
     Polygon_2 polygon = getSimplePolygonFromPoints(points);
     Polygon_2 newPolygon = getSimplePolygonFromPoints(newPolygonPoints);

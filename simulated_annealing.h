@@ -9,6 +9,7 @@
 #include <CGAL/Kd_tree.h>
 #include <CGAL/Fuzzy_iso_box.h>
 #include <CGAL/Search_traits_2.h>
+#include "simulated_annealing.h"
 
 typedef CGAL::Search_traits_2<K> Traits;
 typedef CGAL::Kd_tree<Traits> Tree;
@@ -19,7 +20,7 @@ struct StepResult{
     vector<Point_2> global;
 };
 
-vector<Point_2> SimulatedAnnealing(vector <Point_2> , int , int , int );
+vector<Point_2> SimulatedAnnealing(vector <Point_2> , int , int , int, long&);
 StepResult localStep(vector<Point_2>);
 StepResult globalStep(vector<Point_2>);
 bool localTransitionValid(vector<Point_2>, StepResult );

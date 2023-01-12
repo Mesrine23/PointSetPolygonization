@@ -1,8 +1,10 @@
 #include "simulated_annealing.h"
 
-vector<Point_2> SimulatedAnnealing(vector <Point_2> pointset, int L, int edgeSelection, int stepType){
+vector<Point_2> SimulatedAnnealing(vector <Point_2> pointset, int L, int edgeSelection, int stepType, long& time_left){
+    auto started=chrono::high_resolution_clock::now();
     srand(time(0));
     vector<Point_2> currentPolygon = pointset;
+
 
     Polygon_2 tempPolygon = getSimplePolygonFromPoints(currentPolygon);
     if (!tempPolygon.is_clockwise_oriented())
@@ -12,6 +14,7 @@ vector<Point_2> SimulatedAnnealing(vector <Point_2> pointset, int L, int edgeSel
     for(Point_2 tempPolygonPoint: tempPolygon) {
         currentPolygon.push_back(tempPolygonPoint);
     }
+
 
     StepResult (*step) (vector<Point_2>);
     bool (*transitionValid) (vector<Point_2>, StepResult);
@@ -40,6 +43,7 @@ vector<Point_2> SimulatedAnnealing(vector <Point_2> pointset, int L, int edgeSel
     currentEnergy = calculateEnergy(polygonArea, convexHullArea, pointsetSize, edgeSelection);
     double T = 1.0;
     StepResult stepResult;
+
     while(T>=0){
         do {
             stepResult = step(currentPolygon);
@@ -48,12 +52,18 @@ vector<Point_2> SimulatedAnnealing(vector <Point_2> pointset, int L, int edgeSel
         double tempArea = calculateNewArea(currentPolygon, polygonArea, stepResult, stepType);
         double tempEnergy = calculateEnergy(tempArea, convexHullArea, pointsetSize, edgeSelection);
         double energyDifference = tempEnergy-currentEnergy;
-        if(energyDifference<0 or metropolis(energyDifference, T)){
+        if(energyDifference<0 /*or metropolis(energyDifference, T)*/){
             currentEnergy = tempEnergy;
             polygonArea = tempArea;
             applyTransition(currentPolygon, stepResult);
         }
         T-= 1.0/L;
+        auto done = chrono::high_resolution_clock::now();
+        long passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
+        if(time_left-passed_time<0){
+            time_left=-1;
+            return currentPolygon;
+        }
     }
 
     return currentPolygon;
@@ -117,7 +127,7 @@ StepResult globalStep(vector<Point_2> pointset){
     do{
         randomIndex1 = rand()%pointset.size();
         randomIndex2 = rand()%pointset.size();
-    }while(abs(randomIndex1-randomIndex2)>2);
+    }while(abs(randomIndex1-randomIndex2)<=2);
 
     Point_2 q,s;
     q = pointset[randomIndex1];
@@ -216,6 +226,7 @@ bool globalTransitionValid(vector<Point_2> polygon, StepResult stepResult){
             if(segmentIntersectsSegment(pr, edge) and !edgesAreAdjacent(pr, edge)) return false;
         }
     }
+
     return true;
 }
 
@@ -231,12 +242,14 @@ void applyGlobalTransition(vector<Point_2>& polygon, StepResult stepResult){
     Point_2 p=stepResult.global[0],q=stepResult.global[1],r=stepResult.global[2];
     Point_2 s=stepResult.global[3],t=stepResult.global[4];
 
-    int pIndex= findIndexOfPointInPointSet(polygon, p), qIndex= findIndexOfPointInPointSet(polygon, q);
-    int rIndex= findIndexOfPointInPointSet(polygon, r), sIndex= findIndexOfPointInPointSet(polygon, s), tIndex= findIndexOfPointInPointSet(polygon, t);
+    int qIndex= findIndexOfPointInPointSet(polygon, q);
+    int sIndex= findIndexOfPointInPointSet(polygon, s);
 
-    if(sIndex>tIndex)
-        move(polygon, qIndex, tIndex);
-    else
+//        move(polygon, qIndex, sIndex);
+
+    if(sIndex>qIndex)
         move(polygon, qIndex, sIndex);
+    else
+        move(polygon, qIndex, sIndex+1);
 
 }

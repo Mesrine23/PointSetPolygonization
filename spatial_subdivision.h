@@ -18,7 +18,7 @@ struct Spal{
     bool isLast;
 };
 
-vector<Point_2> spatialSubdivision(vector<Point_2>, int , int , int ,int);
+vector<Point_2> spatialSubdivision(vector<Point_2>, int , int , int ,int, long&);
 vector<Spal> getSpalsFromPointSet(vector<Point_2>, int);
 bool rightCriterion(vector<Point_2> );
 bool leftCriterion(vector<Point_2> , double , int );
