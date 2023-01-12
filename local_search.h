@@ -13,5 +13,7 @@ vector<Point_2> getChangeWithMaxArea(vector<vector<Point_2>>);
 vector<Point_2> getChangeWithMinArea(vector<vector<Point_2>>);
 Point_2 getPreviousPointFromChainOfPoints(vector<Point_2>, int);
 Point_2 getNextPointFromChainOfPoints(vector<Point_2>, int, int);
+int maxChangesToFind(vector<Point_2>);
+int getRandomPolygonIndex(int,int);
 
 #endif

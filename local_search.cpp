@@ -5,15 +5,30 @@ vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double 
     long double polygonArea = abs(getSimplePolygonFromPoints(polygon).area());
     long double newPolygonArea = 0;
 
+    auto done = chrono::high_resolution_clock::now();
+    long passed_time;
+
     while(abs(polygonArea-newPolygonArea) >= threshold) {
         vector<vector<Point_2>> allPossiblePolygonChanges;
         for(int pointIndex=0 ; pointIndex < polygon.size() ; ++pointIndex) {
             vector<vector<Point_2>> possiblePolygonChangesForSinglePoint = getPossiblePolygonChangesForSinglePoint(polygon,pointIndex);
             addChangedPointSetsInPossibleChangesVector(allPossiblePolygonChanges, possiblePolygonChangesForSinglePoint);
             for(int length=2 ; length<=chainLength ; ++length) {
+                done = chrono::high_resolution_clock::now();
+                passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
+                if(time-passed_time<0){
+                    time=-1;
+                    return polygon;
+                }
                 vector<vector<Point_2>> possiblePolygonChangesForMultiplePoints = getPossiblePolygonChangesForMultiplePoints(polygon,pointIndex,length);
                 addChangedPointSetsInPossibleChangesVector(allPossiblePolygonChanges, possiblePolygonChangesForMultiplePoints);
             }
+        }
+        done = chrono::high_resolution_clock::now();
+        passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
+        if(time-passed_time<0){
+            time=-1;
+            return polygon;
         }
         vector<Point_2> newPolygon;
         if (isMax) {
@@ -36,8 +51,8 @@ vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double 
                 break;
             polygon = newPolygon;
         }
-        auto done = chrono::high_resolution_clock::now();
-        long passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
+        done = chrono::high_resolution_clock::now();
+        passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
         if(time-passed_time<0){
             time=-1;
             return polygon;
@@ -47,6 +62,9 @@ vector<Point_2> LocalSearchAlg(vector<Point_2> polygon, int chainLength, double 
 }
 
 vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2> polygon, int indexOfPoint) {
+    int maxPossibleChanges = maxChangesToFind(polygon);
+    int changesFound = 0;
+    int loopsDone = 0;
     vector<vector<Point_2>> possiblePolygonChanges;
     Point_2 nextPoint, previousPoint;
     Point_2 currentPoint = polygon[indexOfPoint];
@@ -63,14 +81,26 @@ vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2> 
         previousPoint = polygon[indexOfPoint-1];
     }
     polygon.erase(polygon.begin() + indexOfPoint);
-    for(int i=0 ; i<polygon.size()-1 ; ++i) {
-        if(polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
+    while((changesFound != maxPossibleChanges) && (loopsDone != int(polygon.size()/2))) {
+        ++loopsDone;
+        int i = getRandomPolygonIndex(0,polygon.size()-1);
+        if(i==indexOfPoint || polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
             continue;
         vector<Point_2> tempPolygon = polygon;
         tempPolygon.insert( (tempPolygon.begin()+i+1) , currentPoint );
-        if(isPolygonSimple(tempPolygon))
+        if(isPolygonSimple(tempPolygon)) {
             possiblePolygonChanges.push_back(tempPolygon);
+            ++changesFound;
+        }
     }
+//    for(int i=0 ; i<polygon.size()-1 ; ++i) {
+//        if(polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
+//            continue;
+//        vector<Point_2> tempPolygon = polygon;
+//        tempPolygon.insert( (tempPolygon.begin()+i+1) , currentPoint );
+//        if(isPolygonSimple(tempPolygon))
+//            possiblePolygonChanges.push_back(tempPolygon);
+//    }
     if(!(polygon[polygon.size()-1]==nextPoint || polygon[polygon.size()-1]==previousPoint || polygon[0]==nextPoint || polygon[0]==previousPoint)) {
         vector<Point_2> tempPolygon = polygon;
         tempPolygon.push_back(currentPoint);
@@ -81,6 +111,9 @@ vector<vector<Point_2>> getPossiblePolygonChangesForSinglePoint(vector<Point_2> 
 }
 
 vector<vector<Point_2>> getPossiblePolygonChangesForMultiplePoints(vector<Point_2> polygon, int indexOfPoint, int length) {
+    int maxPossibleChanges = maxChangesToFind(polygon);
+    int changesFound = 0;
+    int loopsDone = 0;
     vector<vector<Point_2>> possiblePolygonChanges;
     Point_2 nextPoint = getNextPointFromChainOfPoints(polygon,indexOfPoint,length);
     Point_2 previousPoint = getPreviousPointFromChainOfPoints(polygon,indexOfPoint);
@@ -95,14 +128,26 @@ vector<vector<Point_2>> getPossiblePolygonChangesForMultiplePoints(vector<Point_
         reversedChainOfPoints.insert(reversedChainOfPoints.begin(),polygon[indexOfPoint]);
         polygon.erase(polygon.begin() + indexOfPoint);
     }
-    for(int i=0 ; i<polygon.size()-1 ; ++i) {
-        if(polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
+    while((changesFound != maxPossibleChanges) && (loopsDone != int(polygon.size()/2))) {
+        ++loopsDone;
+        int i = getRandomPolygonIndex(0,polygon.size()-1);
+        if(i==indexOfPoint || polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
             continue;
         vector<Point_2> tempPolygon = polygon;
-        tempPolygon.insert( (tempPolygon.begin()+i+1) , reversedChainOfPoints.begin() , reversedChainOfPoints.end() );
-        if(isPolygonSimple(tempPolygon))
+        tempPolygon.insert( (tempPolygon.end()) , reversedChainOfPoints.begin() , reversedChainOfPoints.end() );
+        if(isPolygonSimple(tempPolygon)) {
             possiblePolygonChanges.push_back(tempPolygon);
+            ++changesFound;
+        }
     }
+//    for(int i=0 ; i<polygon.size()-1 ; ++i) {
+//        if(polygon[i]==nextPoint || polygon[i]==previousPoint || polygon[i+1]==nextPoint || polygon[i+1]==previousPoint)
+//            continue;
+//        vector<Point_2> tempPolygon = polygon;
+//        tempPolygon.insert( (tempPolygon.begin()+i+1) , reversedChainOfPoints.begin() , reversedChainOfPoints.end() );
+//        if(isPolygonSimple(tempPolygon))
+//            possiblePolygonChanges.push_back(tempPolygon);
+//    }
     if(!(polygon[polygon.size()-1]==nextPoint || polygon[polygon.size()-1]==previousPoint || polygon[0]==nextPoint || polygon[0]==previousPoint)) {
         vector<Point_2> tempPolygon = polygon;
         tempPolygon.insert( (tempPolygon.end()) , reversedChainOfPoints.begin() , reversedChainOfPoints.end() );
@@ -169,3 +214,17 @@ Point_2 getNextPointFromChainOfPoints(vector<Point_2> polygon, int indexOfStarti
     return polygon[indexOfNextItem];
 }
 
+int maxChangesToFind(vector<Point_2> polygon) {
+    int polygonSize = polygon.size();
+    if (polygonSize > 1000)
+        return int(polygonSize / 100);
+    else if (polygonSize > 500)
+        return int(polygonSize / 20);
+    else
+        return int(polygonSize / 10);
+}
+
+int getRandomPolygonIndex(int min, int max) {
+    return min + ( std::rand() % ( max - min + 1 ) );
+
+}
