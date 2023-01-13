@@ -218,30 +218,33 @@ int main(int argc, char* argv[]){
             long convexHullMaxInitTime = std::chrono::duration_cast<std::chrono::milliseconds>(done-started).count();
 
             vector<Point_2> result;
+            long time_till_cutoff;
 
-            cerr<<"Calculating Local Search Incremental Min..."<<endl;
-            long time_till_cutoff=time-incrementalMinInitTime;
-            result = LocalSearchAlg(incrementalInitMin, 4, 0.05, false, time_till_cutoff);
-            resHolder.local_search_inc_min.push_back(getScore(result, 1, (time_till_cutoff==-1)));
-            result.clear();
+            if(inst.size<=400) {
+                cerr << "Calculating Local Search Incremental Min..." << endl;
+                time_till_cutoff = time - incrementalMinInitTime;
+                result = LocalSearchAlg(incrementalInitMin, 4, 0.05, false, time_till_cutoff);
+                resHolder.local_search_inc_min.push_back(getScore(result, 1, (time_till_cutoff == -1)));
+                result.clear();
 
-            cerr<<"Calculating Local Search Incremental Max..."<<endl;
-            time_till_cutoff=time-incrementalMaxInitTime;
-            result = LocalSearchAlg(incrementalInitMax, 4, 0.05, true, time_till_cutoff);
-            resHolder.local_search_inc_max.push_back(getScore(result, 2, (time_till_cutoff==-1)));
-            result.clear();
+                cerr << "Calculating Local Search Incremental Max..." << endl;
+                time_till_cutoff = time - incrementalMaxInitTime;
+                result = LocalSearchAlg(incrementalInitMax, 4, 0.05, true, time_till_cutoff);
+                resHolder.local_search_inc_max.push_back(getScore(result, 2, (time_till_cutoff == -1)));
+                result.clear();
 
-            cerr<<"Calculating Local Search Convex Hull Min..."<<endl;
-            time_till_cutoff=time-convexHullMinInitTime;
-            result = LocalSearchAlg(convexHullInitMin, 4, 0.05, false, time_till_cutoff);
-            resHolder.local_search_ch_min.push_back(getScore(result, 1, (time_till_cutoff==-1)));
-            result.clear();
+                cerr << "Calculating Local Search Convex Hull Min..." << endl;
+                time_till_cutoff = time - convexHullMinInitTime;
+                result = LocalSearchAlg(convexHullInitMin, 4, 0.05, false, time_till_cutoff);
+                resHolder.local_search_ch_min.push_back(getScore(result, 1, (time_till_cutoff == -1)));
+                result.clear();
 
-            cerr<<"Calculating Local Search Convex Hull Max..."<<endl;
-            time_till_cutoff=time-convexHullMaxInitTime;
-            result = LocalSearchAlg(convexHullInitMax, 4, 0.05, true, time_till_cutoff);
-            resHolder.local_search_ch_max.push_back(getScore(result, 2, (time_till_cutoff==-1)));
-            result.clear();
+                cerr << "Calculating Local Search Convex Hull Max..." << endl;
+                time_till_cutoff = time - convexHullMaxInitTime;
+                result = LocalSearchAlg(convexHullInitMax, 4, 0.05, true, time_till_cutoff);
+                resHolder.local_search_ch_max.push_back(getScore(result, 2, (time_till_cutoff == -1)));
+                result.clear();
+            }
 
 
             cerr<<"Calculating Local Step Incremental Min..."<<endl;
@@ -297,13 +300,13 @@ int main(int argc, char* argv[]){
             if(inst.size>=1000) {
                 cerr << "Calculating Subdivision Min" << endl;
                 time_till_cutoff = time;
-                result = spatialSubdivision(points, 20, 1500, 1, 1, time_till_cutoff);
+                result = spatialSubdivision(points, 100, 1500, 1, 1, time_till_cutoff);
                 resHolder.subdivision_min.push_back(getScore(result, 1, (time_till_cutoff == -1)));
                 result.clear();
 
                 cerr << "Calculating Subdivision Max" << endl;
                 time_till_cutoff = time;
-                result = spatialSubdivision(points, 20, 1500, 1, 1, time_till_cutoff);
+                result = spatialSubdivision(points, 100, 1500, 2, 1, time_till_cutoff);
                 resHolder.subdivision_max.push_back(getScore(result, 2, (time_till_cutoff == -1)));
                 result.clear();
             }
@@ -311,9 +314,15 @@ int main(int argc, char* argv[]){
         }
         printElement(inst.size, 8);
         cout<<"||";
-        printScores(resHolder.local_search_inc_min, resHolder.local_search_inc_max, false);
+        if(inst.size<=400)
+            printScores(resHolder.local_search_inc_min, resHolder.local_search_inc_max, false);
+        else
+            printScores(resHolder.local_search_inc_min, resHolder.local_search_inc_max, true);
         cout<<"||";
-        printScores(resHolder.local_search_ch_min, resHolder.local_search_ch_max, false);
+        if(inst.size<=400)
+            printScores(resHolder.local_search_ch_min, resHolder.local_search_ch_max, false);
+        else
+            printScores(resHolder.local_search_ch_min, resHolder.local_search_ch_max, true);
         cout<<"||";
         printScores(resHolder.local_step_inc_min, resHolder.local_step_inc_max, false);
         cout<<"||";
@@ -324,9 +333,9 @@ int main(int argc, char* argv[]){
         printScores(resHolder.global_step_ch_min, resHolder.global_step_ch_max, false);
         cout<<"||";
         if(inst.size<1000)
-            printScores(resHolder.subdivision_min, resHolder.subdivision_min, true);
+            printScores(resHolder.subdivision_min, resHolder.subdivision_max, true);
         else
-            printScores(resHolder.subdivision_min, resHolder.subdivision_min, false);
+            printScores(resHolder.subdivision_min, resHolder.subdivision_max, false);
         cout<<"||"<<endl;
     }
 }

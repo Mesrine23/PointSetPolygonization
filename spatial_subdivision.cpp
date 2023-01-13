@@ -49,7 +49,6 @@ vector<Spal> getSpalsFromPointSet(vector<Point_2> pointset, int M){
                 pointset.erase(pointset.begin());
             }
             counter++;
-            cerr<<"BREAK POINT 1"<<endl;
         }
         else{
             currentSpal.pointset.push_back(result.back().pointset.back());
@@ -58,7 +57,6 @@ vector<Spal> getSpalsFromPointSet(vector<Point_2> pointset, int M){
             std::copy(pointset.begin(), pointset.begin() + (M-1), std::back_inserter(currentSpal.pointset));
             pointset.erase(std::next(pointset.begin(), 0), std::next(pointset.begin(), M-2));
 
-            cerr<<"BREAK POINT 2"<<endl;
 
             //AMA KATI PAEI LATHOS EDW EXEI GINEI MALAKIA 100%
             while(!(rightCriterion(currentSpal.pointset) and leftCriterion(pointset, currentSpal.pointset.back().y(), M)) and !pointset.empty()){
@@ -67,7 +65,6 @@ vector<Spal> getSpalsFromPointSet(vector<Point_2> pointset, int M){
             }
             counter++;
 
-            cerr<<"BREAK POINT 3"<<endl;
         }
 
         if(pointset.size()<M-1) {
@@ -77,10 +74,8 @@ vector<Spal> getSpalsFromPointSet(vector<Point_2> pointset, int M){
         result.push_back(currentSpal);
         currentSpal.pointset.clear();
 
-        cerr<<"BREAK POINT 4"<<endl;
     }
 
-    cerr<<"BREAK POINT 5"<<endl;
 
     return result;
 }
@@ -129,6 +124,10 @@ void createOptimalSpals(vector<Spal>& spals, int minmax,int L, int initalization
     vector<vector<Point_2>> convexHulls;
     for(Spal& spal : spals){
         vector<Point_2> convexHull = createConvexHull(spal.pointset);
+        vector<Point_2> temp1 = spal.pointset;
+        removeUsedPoints(convexHull, temp1);
+        addUntrackedCollinearPointsInPolygonalLine(convexHull, temp1);
+
         Polygon_2 temp = getSimplePolygonFromPoints(convexHull);
 
         if(!temp.is_clockwise_oriented()) temp.reverse_orientation();
@@ -288,8 +287,8 @@ bool markedSegmentChosen(Spal spal, StepResult stepResult){
 
 vector<Point_2> subdivisionConvexHullAlgo(Spal spal, vector<Point_2> convexHull, int minmax){
     vector<Segment_2> markedSegments;
-    if(!spal.isLast) markedSegments.push_back(spal.leftmostSeg);
-    if(!spal.isFirst) markedSegments.push_back(spal.rightmostSeg);
+    if(!spal.isFirst) markedSegments.push_back(spal.leftmostSeg);
+    if(!spal.isLast) markedSegments.push_back(spal.rightmostSeg);
 
     vector<Point_2> polygon, pointSet=spal.pointset;
     pointSet = sortPointset(pointSet,"1b");
